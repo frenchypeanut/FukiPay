@@ -1,0 +1,34 @@
+name: bot
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "bot/**"
+
+jobs:
+  deploy:
+    name: Test and Deploy
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        working-directory: ./bot/functions
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10"
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: npm install
+      - name: Run tests
+        run: npm run test
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions
+        env:
+          PROJECT_ID: telegramdefi
+          PROJECT_PATH: ./bot
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
