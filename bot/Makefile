@@ -18,14 +18,15 @@ endef
 #######################################
 install: ## to install dependencies
 	@$(NPM) i
-	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist > .env; fi
-	@$(call read_env) && $(TG) webhook-check
+	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist .env; fi
 	@firebase functions:config:get > .runtimeconfig.json
 
 run: ## to start the local server
+	@$(call read_env) && $(TG) webhook-check
 	@firebase serve
 
 run-watch: ## to start local server with watch
+	@$(call read_env) && $(TG) webhook-check
 	@$(WATCH) functions/src '$(NPM) run build' 'firebase serve'
 
 test: ## to launch tests
