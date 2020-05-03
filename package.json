@@ -1,0 +1,29 @@
+{
+  "name": "TelegramDeFi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./api/main.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrenchyPeanut/TelegramDeFi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FrenchyPeanut/TelegramDeFi/issues"
+  },
+  "homepage": "https://github.com/FrenchyPeanut/TelegramDeFi#readme",
+  "dependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "dotenv": "^8.2.0",
+    "source-map-loader": "^0.2.4",
+    "telegraf": "^3.38.0",
+    "typescript": "^3.8.3",
+    "web3": "^1.2.7"
+  }
+}
