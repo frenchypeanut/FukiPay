@@ -5,6 +5,11 @@ const ok = (idNumber) => {
     return 'bonjour, ' + idNumber;
 }
 
+/** 
+ * @dev Check if the user have already a wallet.
+ * @param idNumber Id of the user.
+ * @return boolean The confirmation of the existence of the wallet.
+ */
 const checkNewWallet = async (idNumber) => {
     const address = await contract.getWalletAddress(idNumber);
     if (address === '0x000') {
@@ -13,6 +18,11 @@ const checkNewWallet = async (idNumber) => {
     return false;
 }
 
+/**
+ * @dev Generate new smart-wallet.
+ * @param idNumber Id of the user.
+ * @return string The address of the new wallet.
+ */
 const getNewWallet = async (idNumber) => {
     if (checkNewWallet(idNumber)) {
         return await contract.createWallet(idNumber);
@@ -21,6 +31,11 @@ const getNewWallet = async (idNumber) => {
     return 'You already have a smart-wallet wich is : ' + address;
 }
 
+/**
+ * @dev Get the address of the user's wallet.
+ * @param idNumber Id of the user.
+ * @return string The address of the user's wallet.
+ */
 const getWallet = async (idNumber) => {
     if (checkNewWallet(idNumber)) {
         return `You don't have a smart-wallet. `;
@@ -29,6 +44,11 @@ const getWallet = async (idNumber) => {
     return 'Your smart-wallet address is : ' + address;
 }
 
+/**
+ * @dev Get the address of the user's wallet in qrcode format.
+ * @param idNumber Id of the user.
+ * @return string The url of the qrcode.
+ */
 const getQRcode = async (idNumber) => {
     if (checkNewWallet(idNumber)) {
         return `you don't have a wallet yet, if you want to, type the following command: `;
@@ -42,6 +62,11 @@ const getQRcode = async (idNumber) => {
     });
 }
 
+/**
+ * @dev Get the balance's user.
+ * @param idNumber Id of the user.
+ * @return int The value of the wallet's user.
+ */
 const getBalance = async (idNumber) => {
     if (checkNewWallet(idNumber)) {
         return `you don't have a wallet yet, if you want to, type the following command: `;
