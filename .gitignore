@@ -3,3 +3,8 @@
 
 # Package
 **/node_modules
+
+# Compiled-js
+./api/command.js
+./api/contract.js
+./api/main.js

@@ -1,6 +1,6 @@
 const Web3 = require('web3');
 
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 
 const abiFile = require('../contracts/SmartWalletManager.json');
 
