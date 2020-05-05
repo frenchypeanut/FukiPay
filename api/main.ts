@@ -1,15 +1,20 @@
 require('dotenv').config({ path: '../.env' });
-const command = require('./command.ts');
+
+import {
+    getNewWallet,
+    getQRcode,
+    getBalance
+} from './command';
 
 const Telegraf = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.start((ctx) => ctx.reply('Welcome on TeleCryptoPay'));
-bot.help((ctx) => ctx.reply('TeleCryptoPay - V0.1'));
+bot.start((ctx) => ctx.reply('Welcome on telegramDeFi'));
+bot.help((ctx) => ctx.reply('telegramDeFi - V0.1'));
 
-bot.command('getNewWallet', (ctx) => ctx.reply(command.getNewWallet(ctx.from.id)));
-bot.command('getBalance', (ctx) => ctx.reply(command.getBalance(ctx.from.id)));
-bot.command('getAddress', (ctx) => ctx.reply(command.getNewWallet(ctx.from.id)));
-bot.command('getQRcode', (ctx) => ctx.reply(command.getQRcode(ctx.from.id)));
+bot.command('getNewWallet', (ctx) => ctx.reply(getNewWallet(ctx.from.id)));
+bot.command('getBalance', (ctx) => ctx.reply(getBalance(ctx.from.id)));
+bot.command('getAddress', (ctx) => ctx.reply(getNewWallet(ctx.from.id)));
+bot.command('getQRcode', (ctx) => ctx.reply(getQRcode(ctx.from.id)));
 
 bot.launch();

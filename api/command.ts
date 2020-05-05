@@ -1,5 +1,10 @@
 const QRCode = require('qrcode');
-const contract = require('./contract.ts');
+const Web3 = require('web3');
+
+import {
+    createWallet,
+    getWalletAddress
+} from './contract';
 
 /** 
  * @dev Check if the user have already a wallet.
@@ -7,8 +12,8 @@ const contract = require('./contract.ts');
  * @return boolean The confirmation of the existence of the wallet.
  */
 const checkNewWallet = async (idNumber) => {
-    const address = await contract.getWalletAddress(idNumber);
-    if (address === '0x000') {
+    const address = await getWalletAddress(idNumber);
+    if (address === '0x0000000000000000000000000000000000000000') {
         return true;
     }
     return false;
@@ -28,7 +33,7 @@ const IntToSting = (value) => {
  * @param tx Id of the transaction
  * @return string The url of the transaction.
  */
-const getEtherscanUrl = (tx) => {
+export const getEtherscanUrl = (tx) => {
     const msg = 'you can find the details of your transaction at this url: https:///ropsten.etherscan.io/tx/'+ tx;
     return msg;
 }
@@ -38,12 +43,12 @@ const getEtherscanUrl = (tx) => {
  * @param idNumber Id of the user.
  * @return string The address of the new wallet.
  */
-const getNewWallet = async (idNumber) => {
+export const getNewWallet = async (idNumber) => {
     const id = IntToSting(idNumber);
     if (checkNewWallet(id)) {
-        return await contract.createWallet(id);
+        return await createWallet(id);
     }
-    const address = await contract.getWalletAddress(id);
+    const address = await getWalletAddress(id);
     return 'You already have a smart-wallet wich is : ' + address;
 }
 
@@ -52,12 +57,12 @@ const getNewWallet = async (idNumber) => {
  * @param idNumber Id of the user.
  * @return string The address of the user's wallet.
  */
-const getWallet = async (idNumber) => {
+export const getWallet = async (idNumber) => {
     const id = IntToSting(idNumber);
     if (checkNewWallet(id)) {
         return `You don't have a smart-wallet.`;
     }
-    const address = await contract.getWalletAddress(id);
+    const address = await getWalletAddress(id);
     return 'Your smart-wallet address is : ' + address;
 }
 
@@ -66,12 +71,12 @@ const getWallet = async (idNumber) => {
  * @param idNumber Id of the user.
  * @return string The url of the qrcode.
  */
-const getQRcode = async (idNumber) => {
+export const getQRcode = async (idNumber) => {
     const id = IntToSting(idNumber);
     if (checkNewWallet(id)) {
         return `you don't have a wallet yet, if you want to, type the following command: `;
     }
-    const address = await contract.getWalletAddress(id);
+    const address = await getWalletAddress(id);
     QRCode.toDataURL(address, (url, err) => {
         if (err) {
             return err;
@@ -85,18 +90,11 @@ const getQRcode = async (idNumber) => {
  * @param idNumber Id of the user.
  * @return int The value of the wallet's user.
  */
-const getBalance = async (idNumber) => {
+export const getBalance = async (idNumber) => {
     const id = IntToSting(idNumber);
     if (checkNewWallet(id)) {
         return `you don't have a wallet yet, if you want to, type the following command: `;
     }
-    const address = await contract.getWalletAddress(id);
+    const address = await getWalletAddress(id);
     return await Web3.eth.getBalance(address)
 }
-
-module.exports =  {
-    checkNewWallet,
-    getNewWallet,
-    getQRcode,
-    getBalance
-};

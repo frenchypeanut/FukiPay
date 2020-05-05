@@ -1,4 +1,3 @@
-const fs = require("fs");
 const Web3 = require('web3');
 
 require('dotenv').config({ path: '../.env' });
@@ -15,17 +14,12 @@ const teleCrypotPay = (ethereumAddress, contractAddress) => {
     });
 }
 
-const createWallet = async (idNumber) => {
-    const TeleCryptoPay = teleCrypotPay(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
-    return await TeleCryptoPay.methods.createWallet(idNumber).call({ from: process.env.accountAddress, gas: process.env.gasLimit });
+export const createWallet = async (idNumber) => {
+    const telegramDeFi = teleCrypotPay(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
+    return await telegramDeFi.methods.createWallet(idNumber).call({ from: process.env.accountAddress, gas: process.env.gasLimit });
 }
 
-const getWalletAddress = async (idNumber) => {
-    const TeleCryptoPay = teleCrypotPay(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
-    return await TeleCryptoPay.methods.getWalletAddress(idNumber).call({ from: process.env.accountAddress, gas: process.env.gasLimit });
+export const getWalletAddress = async (idNumber) => {
+    const telegramDeFi = teleCrypotPay(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
+    return await telegramDeFi.methods.getWalletAddress(idNumber).call({ from: process.env.accountAddress, gas: process.env.gasLimit });
 }
-
-module.exports = {
-    createWallet,
-    getWalletAddress
-};
