@@ -13,7 +13,7 @@ import {
  */
 const checkNewWallet = async (idNumber) => {
     const address = await getWalletAddress(idNumber);
-    if (address === '0x0000000000000000000000000000000000000000') {
+    if (address == '0x0000000000000000000000000000000000000000') {
         return true;
     }
     return false;
@@ -45,11 +45,10 @@ export const getEtherscanUrl = (tx) => {
  */
 export const getNewWallet = async (idNumber) => {
     const id = IntToSting(idNumber);
-    if (checkNewWallet(id)) {
-        return await createWallet(id);
-    }
-    const address = await getWalletAddress(id);
-    return 'You already have a smart-wallet wich is : ' + address;
+    if (!checkNewWallet(id)) {
+        await createWallet(id);
+        return 'Your smart-wallet has been successfully created at the following address: ' + await getWalletAddress(id);
+    } else return 'You already have a smart-wallet which is : ' + await getWalletAddress(id);
 }
 
 /**
