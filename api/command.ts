@@ -1,5 +1,5 @@
 const QRCode = require('qrcode');
-const contract = require('./contracts.ts');
+const contract = require('./contract.ts');
 
 /** 
  * @dev Check if the user have already a wallet.

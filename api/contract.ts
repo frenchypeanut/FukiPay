@@ -1,11 +1,11 @@
 const fs = require("fs");
 const Web3 = require('web3');
+const abiFile = require('../contracts/SmartWalletManager.json');
 
 
 const web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/935a83e2b4394aa790e1b04b14b3ebba"));
-const abi = JSON.parse('../contracts/contract.json');
 
-const teleCrypotPay = new web3.eth.Contract(abi, '0xa08462e67646129773dd0fa04fde6fda3afdbea2', {
+const teleCrypotPay = new web3.eth.Contract(abiFile, '0xa08462e67646129773dd0fa04fde6fda3afdbea2', {
     from: '0xae804E83595BB4D5713B6FB656b31794c510F677',
     gasPrice: '20000000000'
 });
