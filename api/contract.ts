@@ -1,4 +1,5 @@
 const Web3 = require('web3');
+const Accounts = require('web3-eth-accounts');
 
 require('dotenv').config();
 
@@ -8,6 +9,7 @@ const abiFile = require('../contracts/SmartWalletManager.json');
 const web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/935a83e2b4394aa790e1b04b14b3ebba"));
 
 const teleCrypotPay = (ethereumAddress, contractAddress) => {
+    web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY);
     return new web3.eth.Contract(abiFile.abi, contractAddress, {
         from: ethereumAddress,
         gasPrice: '20000000000'
