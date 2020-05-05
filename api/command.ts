@@ -15,12 +15,21 @@ const checkNewWallet = async (idNumber) => {
 }
 
 /**
+ * @dev Give the string version of a int
+ * @param value int to transform
+ * @return string tne string version of the int
+ */
+const IntToSting = (value) => {
+    return value.toString();
+}
+
+/**
  * @dev Give the url of the transaction.
  * @param tx Id of the transaction
  * @return string The url of the transaction.
  */
 const getEtherscanUrl = (tx) => {
-    const msg = 'you can find the details of your transaction at this url: https://etherscan.io/tx/'+ tx;
+    const msg = 'you can find the details of your transaction at this url: https:///ropsten.etherscan.io/tx/'+ tx;
     return msg;
 }
 
@@ -30,10 +39,11 @@ const getEtherscanUrl = (tx) => {
  * @return string The address of the new wallet.
  */
 const getNewWallet = async (idNumber) => {
-    if (checkNewWallet(idNumber)) {
-        return await contract.createWallet(idNumber);
+    const id = IntToSting(idNumber);
+    if (checkNewWallet(id)) {
+        return await contract.createWallet(id);
     }
-    const address = await contract.getWalletAddress(idNumber);
+    const address = await contract.getWalletAddress(id);
     return 'You already have a smart-wallet wich is : ' + address;
 }
 
@@ -43,10 +53,11 @@ const getNewWallet = async (idNumber) => {
  * @return string The address of the user's wallet.
  */
 const getWallet = async (idNumber) => {
-    if (checkNewWallet(idNumber)) {
+    const id = IntToSting(idNumber);
+    if (checkNewWallet(id)) {
         return `You don't have a smart-wallet.`;
     }
-    const address = await contract.getWalletAddress(idNumber);
+    const address = await contract.getWalletAddress(id);
     return 'Your smart-wallet address is : ' + address;
 }
 
@@ -56,10 +67,11 @@ const getWallet = async (idNumber) => {
  * @return string The url of the qrcode.
  */
 const getQRcode = async (idNumber) => {
-    if (checkNewWallet(idNumber)) {
+    const id = IntToSting(idNumber);
+    if (checkNewWallet(id)) {
         return `you don't have a wallet yet, if you want to, type the following command: `;
     }
-    const address = await contract.getWalletAddress(idNumber);
+    const address = await contract.getWalletAddress(id);
     QRCode.toDataURL(address, (url, err) => {
         if (err) {
             return err;
@@ -74,10 +86,11 @@ const getQRcode = async (idNumber) => {
  * @return int The value of the wallet's user.
  */
 const getBalance = async (idNumber) => {
-    if (checkNewWallet(idNumber)) {
+    const id = IntToSting(idNumber);
+    if (checkNewWallet(id)) {
         return `you don't have a wallet yet, if you want to, type the following command: `;
     }
-    const address = await contract.getWalletAddress(idNumber);
+    const address = await contract.getWalletAddress(id);
     return await Web3.eth.getBalance(address)
 }
 
