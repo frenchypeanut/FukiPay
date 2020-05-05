@@ -1,14 +1,14 @@
 const Web3 = require('web3');
-const Accounts = require('web3-eth-accounts');
 
 require('dotenv').config();
 
 const abiFile = require('../contracts/SmartWalletManager.json');
 
+let HDWalletProvider = require('truffle-hdwallet-provider')
+const provider = new HDWalletProvider("notice sure hockey vacant youth deer grass case vocal plate rather swear", "https://ropsten.infura.io/v3/qwe");
+const web3 = new Web3(provider);
 
-const web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/935a83e2b4394aa790e1b04b14b3ebba"));
-
-const teleCrypotPay = (ethereumAddress, contractAddress) => {
+const TelegramDeFi = (ethereumAddress, contractAddress) => {
     web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY);
     return new web3.eth.Contract(abiFile.abi, contractAddress, {
         from: ethereumAddress,
@@ -17,11 +17,13 @@ const teleCrypotPay = (ethereumAddress, contractAddress) => {
 }
 
 export const createWallet = async (idNumber) => {
-    const telegramDeFi = teleCrypotPay(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
-    return await telegramDeFi.methods.createWallet(idNumber).call({ from: process.env.accountAddress, gas: process.env.gasLimit });
+    const telegramDeFi = TelegramDeFi(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
+    const tx = await telegramDeFi.methods.createWallet(idNumber).send({ from: process.env.accountAddress });
+    return true;
 }
 
 export const getWalletAddress = async (idNumber) => {
-    const telegramDeFi = teleCrypotPay(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
-    return await telegramDeFi.methods.getWalletAddress(idNumber).call({ from: process.env.accountAddress, gas: process.env.gasLimit });
+    const telegramDeFi = TelegramDeFi(process.env.ETHEREUM_ACCOUNT, process.env.CONTRACT_ADDRESS);
+    const tx = await telegramDeFi.methods.getWalletAddress(idNumber).call({ from: process.env.accountAddress });
+    return(tx);
 }
