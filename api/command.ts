@@ -1,5 +1,5 @@
 const QRCode = require('qrcode');
-const contract = require('./contract.ts');
+const contract = require('./contracts.ts');
 
 const ok = (idNumber) => {
     return 'bonjour, ' + idNumber;
@@ -16,6 +16,16 @@ const checkNewWallet = async (idNumber) => {
         return true;
     }
     return false;
+}
+
+/**
+ * @dev Give the url of the transaction.
+ * @param tx Id of the transaction
+ * @return string The url of the transaction.
+ */
+const getEtherscanUrl = (tx) => {
+    const msg = 'you can find the details of your transaction at this url: https://etherscan.io/tx/'+ tx;
+    return msg;
 }
 
 /**
@@ -38,7 +48,7 @@ const getNewWallet = async (idNumber) => {
  */
 const getWallet = async (idNumber) => {
     if (checkNewWallet(idNumber)) {
-        return `You don't have a smart-wallet. `;
+        return `You don't have a smart-wallet.`;
     }
     const address = await contract.getWalletAddress(idNumber);
     return 'Your smart-wallet address is : ' + address;
@@ -82,5 +92,3 @@ module.exports =  {
     getBalance,
     ok
 };
-
-// renvoyer l'url de la transaction du smart-contract sur idex
