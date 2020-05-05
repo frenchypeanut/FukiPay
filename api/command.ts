@@ -1,10 +1,6 @@
 const QRCode = require('qrcode');
 const contract = require('./contracts.ts');
 
-const ok = (idNumber) => {
-    return 'bonjour, ' + idNumber;
-}
-
 /** 
  * @dev Check if the user have already a wallet.
  * @param idNumber Id of the user.
@@ -89,6 +85,5 @@ module.exports =  {
     checkNewWallet,
     getNewWallet,
     getQRcode,
-    getBalance,
-    ok
+    getBalance
 };
