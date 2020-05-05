@@ -21,6 +21,7 @@
   "dependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "dotenv": "^8.2.0",
+    "qrcode": "^1.4.4",
     "source-map-loader": "^0.2.4",
     "telegraf": "^3.38.0",
     "typescript": "^3.8.3",
