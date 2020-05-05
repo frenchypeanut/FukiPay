@@ -1,0 +1,17 @@
+# Dependencies
+/node_modules
+package-lock.json
+
+# Smart-contract
+/artifacts
+/cache
+/coverage
+/build
+coverage.json
+
+# Typescript
+/typechain
+
+# Others
+.DS_Store
+/.vscode
