@@ -34,7 +34,7 @@ const IntToSting = (value) => {
  * @return string The url of the transaction.
  */
 export const getEtherscanUrl = (tx) => {
-    const msg = 'you can find the details of your transaction at this url: https:///ropsten.etherscan.io/tx/'+ tx;
+    const msg = 'you can find the details of your transaction at this url: https://ropsten.etherscan.io/tx/'+ tx;
     return msg;
 }
 
@@ -46,9 +46,13 @@ export const getEtherscanUrl = (tx) => {
 export const getNewWallet = async (idNumber) => {
     const id = IntToSting(idNumber);
     if (!checkNewWallet(id)) {
-        await createWallet(id);
-        return 'Your smart-wallet has been successfully created at the following address: ' + await getWalletAddress(id);
-    } else return 'You already have a smart-wallet which is : ' + await getWalletAddress(id);
+        const txData = await createWallet(id);
+        const txHash = txData.tx;
+        const creationMsg = 'Your smart-wallet has been successfully created at the following address: ' + await getWalletAddress(id);
+        const transactionMsg = getEtherscanUrl(txHash);
+        return {creationMsg, transactionMsg};
+    }
+    return 'You already have a smart-wallet which is : ' + await getWalletAddress(id);
 }
 
 /**
@@ -97,3 +101,4 @@ export const getBalance = async (idNumber) => {
     const address = await getWalletAddress(id);
     return await Web3.eth.getBalance(address)
 }
+

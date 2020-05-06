@@ -5,7 +5,8 @@
   "main": "./api/main.js",
   "scripts": {
     "tsc": "tsc",
-    "start": "npm run tsc ./api/main.ts && node ./api/main.js"
+    "rebuild": "rm ./api/main.js && rm ./api/command.js && rm ./api/contract.js && npm run tsc ./api/main.ts",
+    "start": "node ./api/main.js"
   },
   "repository": {
     "type": "git",
