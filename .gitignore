@@ -3,12 +3,11 @@
 
 # Package
 **/node_modules
-./package-lock.json
 
 # Compiled-js
-./api/command.js
-./api/contract.js
-./api/main.js
+/api/command.js
+/api/contract.js
+/api/main.js
 
 # .env
-./.env
+.env
