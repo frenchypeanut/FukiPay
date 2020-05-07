@@ -1,5 +1,5 @@
 {
-  "name": "functions",
+  "name": "bot",
   "scripts": {
     "lint": "tslint --project tsconfig.json",
     "build": "tsc",
@@ -9,7 +9,8 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "jest --detectOpenHandles --colors",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "watch": "tsc -w"
   },
   "engines": {
     "node": "12"
