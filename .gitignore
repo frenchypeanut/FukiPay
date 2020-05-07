@@ -3,6 +3,7 @@ node_modules
 
 # environment variables
 .env
+key.json
 
 # firebase cache folder when deploying from local
 .firebase
@@ -14,6 +15,8 @@ node_modules
 
 # logs
 npm-debug.log*
+firebase-debug.log
+firestore-debug.log
 
 # Smart-contract
 /packages/smart-contract/artifacts
@@ -23,8 +26,8 @@ npm-debug.log*
 /packages/smart-contract/coverage.json
 /packages/smart-contract/typechain
 
-# Typescript
-/smart-contract/typechain
+# Web
+/packages/web/build
 
 # Others
 .DS_Store

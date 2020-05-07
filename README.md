@@ -2,6 +2,7 @@
 
 ![bot](https://github.com/FrenchyPeanut/TelegramDeFi/workflows/bot/badge.svg)
 ![contract](https://github.com/FrenchyPeanut/TelegramDeFi/workflows/contract/badge.svg)
+![web](https://github.com/FrenchyPeanut/TelegramDeFi/workflows/web/badge.svg)
 
 ## Requirements
 
@@ -48,7 +49,7 @@ You can use a free service for this: [localhost.run](http://localhost.run/),
 there is no tool to install, just use SSH like this:
 
 ```bash
-ssh -R 80:localhost:5000 ssh.localhost.run
+ssh -R 80:localhost:5001 ssh.localhost.run
 ```
 
 Some Makefile targets have been made to ease interacting with Telegram.
@@ -69,4 +70,8 @@ https://firebase.google.com/docs/functions/config-env
 https://firebase.google.com/docs/functions/local-emulator  
 https://core.telegram.org/bots/webhooks  
 https://core.telegram.org/bots/api  
-https://medium.com/firelayer/structuring-a-firebase-web-project-with-lerna-ab6b5ea8e1f8
+https://medium.com/firelayer/structuring-a-firebase-web-project-with-lerna-ab6b5ea8e1f8  
+https://firebase.google.com/docs/reference/admin/node/admin.firestore  
+https://medium.com/swlh/testing-guide-for-cloud-firestore-functions-and-security-rules-39d9f3c92d99  
+https://medium.com/@moki298/test-your-firebase-cloud-functions-locally-using-cloud-functions-shell-32c821f8a5ce  
+https://ethereumdev.io

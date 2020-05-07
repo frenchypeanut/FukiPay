@@ -6,8 +6,9 @@ SHELL := /bin/bash
 TG = scripts/tg.sh
 WATCH = scripts/watch.sh
 NPM = npm --prefix
-BOT_PACKAGE = packages/bot
-CONTRACT_PACKAGE = packages/smart-contract
+PACKAGE_BOT = packages/bot
+PACKAGE_CONTRACT = packages/smart-contract
+PACKAGE_WEB = packages/web
 NETWORK ?= buidlerevm
 
 default: help
@@ -22,45 +23,45 @@ endef
 #######################################
 install: # to install all dependencies
 	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist > .env; fi
-	$(MAKE) bot-install
-	$(MAKE) contract-install
+	@$(MAKE) bot-install
+	@$(MAKE) contract-install
 
 
 #######################################
 #               BOT                   #
 #######################################
 bot-install: ## to install dependencies
-	@$(NPM) $(BOT_PACKAGE) i
+	@$(NPM) $(PACKAGE_BOT) i
 	@$(call read_env) && $(TG) webhook-check
 	@firebase functions:config:get > .runtimeconfig.json
 
 bot-run: ## to start the local server
-	@firebase serve
+	@firebase emulators:start --only firestore,functions
 
 bot-run-watch: ## to start local server with watch
-	@$(WATCH) functions/src '$(NPM) $(BOT_PACKAGE) run build' 'firebase serve'
+	@$(MAKE) run & $(NPM) $(PACKAGE_BOT) run watch
 
 bot-test: ## to launch tests
-	@$(NPM) $(BOT_PACKAGE) run test
+	@$(NPM) $(PACKAGE_BOT) run test
 
 
 #######################################
 #             CONTRACT                #
 #######################################
 contract-build: ## to run the contract tests
-	@cd $(CONTRACT_PACKAGE) && npm run build && cd -
+	@cd $(PACKAGE_CONTRACT) && npm run build && cd -
 
 contract-install: ## to install contract dependencies
-	@$(NPM) $(CONTRACT_PACKAGE) i
+	@$(NPM) $(PACKAGE_CONTRACT) i
 
 contract-test: ## to run the contract tests
-	@cd $(CONTRACT_PACKAGE) && npx buidler test && cd -
+	@cd $(PACKAGE_CONTRACT) && npx buidler test && cd -
 
 contract-test-coverage: ## to run the contract tests with coverage
-	@cd $(CONTRACT_PACKAGE) && npm run coverage && cd -
+	@cd $(PACKAGE_CONTRACT) && npm run coverage && cd -
 
 contract-deploy: ## to deploy the contract (make contract-deploy NETWORK=<network>)
-	@cd $(CONTRACT_PACKAGE) && npx buidler --network $(NETWORK) run scripts/deploy.ts && cd -
+	@cd $(PACKAGE_CONTRACT) && npx buidler --network $(NETWORK) run scripts/deploy.ts && cd -
 
 
 #######################################
@@ -81,6 +82,19 @@ tg-webhook-delete: ## to delete webhook
 
 tg-webhook-info: ## to get info about webhook
 	@$(call read_env) && $(TG) webhook-info | jq
+
+
+#######################################
+#               WEB                   #
+#######################################
+web-build: ## to star web in watch mode
+	@$(NPM) $(PACKAGE_WEB) run build
+
+web-install: ## to install web dependencies
+	@$(NPM) $(PACKAGE_WEB) i
+
+web-start: ## to star web in watch mode
+	@$(NPM) $(PACKAGE_WEB) start
 
 #######################################
 #               MISC                  #
