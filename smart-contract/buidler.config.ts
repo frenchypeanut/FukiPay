@@ -1,6 +1,5 @@
 import { BuidlerConfig, usePlugin } from '@nomiclabs/buidler/config';
 import * as dotenv from 'dotenv';
-import path from 'path';
 dotenv.config();
 
 usePlugin('@nomiclabs/buidler-waffle');
@@ -24,7 +23,7 @@ const config: BuidlerConfig = {
       accounts: [RINKEBY_PRIVATE_KEY],
     },
     ropsten: {
-      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
+      url: `https://ropsten.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [ROPSTEN_PRIVATE_KEY],
     },
     coverage: {

@@ -5,10 +5,10 @@ import './UserSmartWallet.sol';
 
 
 contract SmartWalletManager {
-    event createdAccount(string telegramId, address userAccountAddress);
-    event FundedAccountAddress(string telegramId, address userAccountAddress);
-    event FundedAccountAmount(string telegramId, uint256 amount);
-    event SpendFunds(uint256 amount, address userAccountAddress);
+    event createdAccount(string _uid, address _userAccountAddress);
+    event FundedAccountAddress(string _uid, address _userAccountAddress);
+    event FundedAccountAmount(string _uid, uint256 _amount);
+    event SpendFunds(uint256 _amount, address _userAccountAddress);
     address public owner;
 
     mapping(string => address) userSmartWallets; // Map of phone numbers to their user-account
@@ -17,36 +17,42 @@ contract SmartWalletManager {
         owner = msg.sender;
     }
 
-    /** @dev Deploys a smart-contract for generating a smart-wallet.
-     * @param telegramId TelegramId of the smart-wallet owner.
+    /**
+     * @dev Deploys a smart-contract for generating a smart-wallet.
+     * @param _uid unique identifier of the smart-wallet owner.
      * @return boolean The confirmation of the smart-wallet creation.
      */
-    function createWallet(string calldata telegramId) external returns (bool) {
+    function createWallet(string calldata _uid) external returns (bool) {
         require(owner == msg.sender, 'Caller must be the owner.');
-        require(bytes(telegramId).length > 0, 'The telegramId cannot be empty.');
-        userSmartWallets[telegramId] = address(new UserSmartWallet(telegramId));
-        emit createdAccount(telegramId, userSmartWallets[telegramId]);
+        require(bytes(_uid).length > 0, 'The telegramId cannot be empty.');
+        userSmartWallets[_uid] = address(new UserSmartWallet(_uid));
+        emit createdAccount(_uid, userSmartWallets[_uid]);
         return true;
     }
 
-    /** @dev Get the address of a specific smart-wallet for a Telegram user.
-     * @param telegramId TelegramId of the smart-wallet owner.
+    /**
+     * @dev Get the address of a specific smart-wallet for a Telegram user.
+     * @param _uid unique identifier of the smart-wallet owner.
      * @return address The address of the smart-wallet.
      */
-    function getWalletAddress(string memory telegramId) public view returns (address) {
+    function getWalletAddress(string memory _uid) public view returns (address) {
         require(msg.sender == owner, 'You must be the owner of the contract.');
-        require(bytes(telegramId).length > 0, 'The telegramId cannot be empty.');
-        return userSmartWallets[telegramId];
+        require(bytes(_uid).length > 0, 'The telegramId cannot be empty.');
+        return userSmartWallets[_uid];
     }
 
-    /** @dev Emits an event when a smart-wallet receives funds.
-     * @param telegramId TelegramId of the smart-wallet receiving funds.
-     * @param amount ETH Amount received by the smart-wallet.
+    /**
+     * @dev Emits an event when a smart-wallet receives funds.
+     * @param _uid unique identifier of the smart-wallet receiving funds.
+     * @param _amount ETH Amount received by the smart-wallet.
      */
-    function fundsAreReceived(string calldata telegramId, uint256 amount) external {
-        require(msg.sender == userSmartWallets[telegramId], 'Only a whitelisted smart-wallet should be emitting events.');
-        emit FundedAccountAddress(telegramId, msg.sender);
-        emit FundedAccountAmount(telegramId, amount);
+    function fundsAreReceived(string calldata _uid, uint256 _amount) external {
+        require(
+            msg.sender == userSmartWallets[_uid],
+            'Only a whitelisted smart-wallet should be emitting events.'
+        );
+        emit FundedAccountAddress(_uid, msg.sender);
+        emit FundedAccountAmount(_uid, _amount);
     }
 
     // Balance should be retrieved directly by calling the SmartWallet address
