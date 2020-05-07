@@ -24,6 +24,7 @@ contract SmartWalletManager {
     function createWallet(string calldata telegramId) external returns (bool) {
         require(owner == msg.sender, 'Caller must be the owner.');
         require(bytes(telegramId).length > 0, 'The telegramId cannot be empty.');
+        require(userSmartWallets[telegramId] == address(0), 'The telegramId already has a wallet.');
         userSmartWallets[telegramId] = address(new UserSmartWallet(telegramId));
         emit createdAccount(telegramId, userSmartWallets[telegramId]);
         return true;

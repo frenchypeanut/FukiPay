@@ -11,6 +11,8 @@ node_modules
 .firebaserc
 # exported config
 .runtimeconfig.json
+# firebase logs
+/firebase-debug.log
 
 # logs
 npm-debug.log*

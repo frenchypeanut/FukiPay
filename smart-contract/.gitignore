@@ -1,6 +1,5 @@
 # Dependencies
 /node_modules
-package-lock.json
 
 # Smart-contract
 /artifacts
@@ -15,3 +14,4 @@ coverage.json
 # Others
 .DS_Store
 /.vscode
+/.env
