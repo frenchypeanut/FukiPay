@@ -5,7 +5,10 @@ SHELL := /bin/bash
 
 TG = scripts/tg.sh
 WATCH = scripts/watch.sh
-NPM = npm --prefix functions
+NPM = npm --prefix
+BOT_PACKAGE = packages/bot
+CONTRACT_PACKAGE = packages/smart-contract
+NETWORK ?= buidlerevm
 
 default: help
 
@@ -13,23 +16,52 @@ define read_env
 	@set -o allexport && source .env && set +o allexport
 endef
 
+
 #######################################
-#               APP                   #
+#            COMMON                   #
 #######################################
-install: ## to install dependencies
-	@$(NPM) i
+install: # to install all dependencies
 	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist > .env; fi
+	$(MAKE) bot-install
+	$(MAKE) contract-install
+
+
+#######################################
+#               BOT                   #
+#######################################
+bot-install: ## to install dependencies
+	@$(NPM) $(BOT_PACKAGE) i
 	@$(call read_env) && $(TG) webhook-check
 	@firebase functions:config:get > .runtimeconfig.json
 
-run: ## to start the local server
+bot-run: ## to start the local server
 	@firebase serve
 
-run-watch: ## to start local server with watch
-	@$(WATCH) functions/src '$(NPM) run build' 'firebase serve'
+bot-run-watch: ## to start local server with watch
+	@$(WATCH) functions/src '$(NPM) $(BOT_PACKAGE) run build' 'firebase serve'
 
-test: ## to launch tests
-	@$(NPM) run test
+bot-test: ## to launch tests
+	@$(NPM) $(BOT_PACKAGE) run test
+
+
+#######################################
+#             CONTRACT                #
+#######################################
+contract-build: ## to run the contract tests
+	@cd $(CONTRACT_PACKAGE) && npm run build && cd -
+
+contract-install: ## to install contract dependencies
+	@$(NPM) $(CONTRACT_PACKAGE) i
+
+contract-test: ## to run the contract tests
+	@cd $(CONTRACT_PACKAGE) && npx buidler test && cd -
+
+contract-test-coverage: ## to run the contract tests with coverage
+	@cd $(CONTRACT_PACKAGE) && npm run coverage && cd -
+
+contract-deploy: ## to deploy the contract (make contract-deploy NETWORK=<network>)
+	@cd $(CONTRACT_PACKAGE) && npx buidler --network $(NETWORK) run scripts/deploy.ts && cd -
+
 
 #######################################
 #             TELEGRAM                #

@@ -4,7 +4,7 @@ on:
     branches:
       - develop
     paths:
-      - "bot/**"
+      - 'packages/bot/**'
 
 jobs:
   deploy:
@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-18.04
     defaults:
       run:
-        working-directory: ./bot/functions
+        working-directory: ./packages/bot
     steps:
       - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: "10"
+          node-version: '12'
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies
@@ -30,5 +30,5 @@ jobs:
           args: deploy --only functions
         env:
           PROJECT_ID: telegramdefi
-          PROJECT_PATH: ./bot
+          PROJECT_PATH: ./packages/bot
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "source": "packages/bot",
+    "predeploy": ["npm run lint", "npm run build"]
+  }
+}
