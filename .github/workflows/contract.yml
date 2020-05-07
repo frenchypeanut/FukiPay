@@ -4,7 +4,7 @@ on:
     branches:
       - develop
     paths:
-      - "smart-contract/**"
+      - 'packages/smart-contract/**'
 
 jobs:
   build:
@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-18.04
     defaults:
       run:
-        working-directory: ./smart-contract
+        working-directory: ./packages/smart-contract
     steps:
       - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: '10'
+          node-version: '12'
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies

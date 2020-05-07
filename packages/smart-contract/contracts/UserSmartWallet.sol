@@ -6,18 +6,18 @@ import './SmartWalletManager.sol';
 
 contract UserSmartWallet {
     address public owner;
-    string public userTelegramId;
+    string public uid;
     uint256 public userBalance;
     address public userBackupKey;
     bool public activated;
 
     SmartWalletManager smartWalletManager;
 
-    constructor(string memory telegramId) public {
+    constructor(string memory _uid) public {
         owner = msg.sender;
         smartWalletManager = SmartWalletManager(msg.sender);
-        require(bytes(telegramId).length > 0, 'The telegramId cannot be empty.');
-        userTelegramId = telegramId;
+        require(bytes(_uid).length > 0, 'The uid cannot be empty.');
+        uid = _uid;
         activated = true;
         userBalance = 0;
     }
@@ -27,7 +27,7 @@ contract UserSmartWallet {
     receive() external payable {
         require(msg.data.length == 0); // Check if this works
         userBalance += msg.value;
-        smartWalletManager.fundsAreReceived(userTelegramId, msg.value);
+        smartWalletManager.fundsAreReceived(uid, msg.value);
     }
 
     /** @dev Get the current balance of the smart-wallet.

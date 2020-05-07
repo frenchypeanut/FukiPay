@@ -1,0 +1,31 @@
+# dependencies
+node_modules
+
+# environment variables
+.env
+
+# firebase cache folder when deploying from local
+.firebase
+# firebase project config file
+# it should be set via firebase-tools
+.firebaserc
+# exported config
+.runtimeconfig.json
+
+# logs
+npm-debug.log*
+
+# Smart-contract
+/packages/smart-contract/artifacts
+/packages/smart-contract/build
+/packages/smart-contract/cache
+/packages/smart-contract/coverage
+/packages/smart-contract/coverage.json
+/packages/smart-contract/typechain
+
+# Typescript
+/smart-contract/typechain
+
+# Others
+.DS_Store
+/.vscode
