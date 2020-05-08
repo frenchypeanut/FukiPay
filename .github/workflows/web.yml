@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: build
-          path: build
+          path: ./packages/web/build
 
   deploy:
     name: Deploy
@@ -50,9 +50,12 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: build
+          path: ./packages/web/build
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only hosting
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: telegramdefi
+          PROJECT_PATH: ./packages/web
