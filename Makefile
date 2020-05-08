@@ -1,5 +1,9 @@
-.PHONY: help install run run-watch test tg-cleanup tg-updates tg-webhook \
-tg-webhook-delete tg-webhook-info
+.PHONY: bot-install bot-run bot-run-watch bot-test contract-build contract-deploy \
+contract-install contract-test-coverage contract-test help tg-cleanup tg-updates \
+tg-webhook-delete tg-webhook-info tg-webhook web-build web-install web-start \
+web-test
+
+
 
 SHELL := /bin/bash
 
@@ -25,6 +29,7 @@ install: # to install all dependencies
 	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist > .env; fi
 	@$(MAKE) bot-install
 	@$(MAKE) contract-install
+	@$(MAKE) web-install
 
 
 #######################################
@@ -39,7 +44,7 @@ bot-run: ## to start the local server
 	@firebase emulators:start --only firestore,functions
 
 bot-run-watch: ## to start local server with watch
-	@$(MAKE) run & $(NPM) $(PACKAGE_BOT) run watch
+	@$(MAKE) bot-run & $(NPM) $(PACKAGE_BOT) run watch
 
 bot-test: ## to launch tests
 	@$(NPM) $(PACKAGE_BOT) run test
@@ -93,8 +98,12 @@ web-build: ## to star web in watch mode
 web-install: ## to install web dependencies
 	@$(NPM) $(PACKAGE_WEB) i
 
-web-start: ## to star web in watch mode
+web-start: ## to start web in watch mode
 	@$(NPM) $(PACKAGE_WEB) start
+
+web-test: ## to run web tests
+	@$(NPM) $(PACKAGE_WEB) run test
+
 
 #######################################
 #               MISC                  #

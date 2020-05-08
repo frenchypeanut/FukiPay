@@ -60,6 +60,10 @@ You can set the webhook on your bot like this:
 make tg-webhook URL=https://xxx-yyy.localhost.run/telegramdefi/us-central1/webhook
 ```
 
+## Firestore Dev
+
+An emulated local firestore will be available, to see your data got to: http://localhost:8080/v1/projects/telegramdefi/databases/(default)/documents/
+
 ## Contract Dev
 
 See makefile for available targets.
