@@ -11,7 +11,7 @@ contract SmartWalletManager {
     event SpendFunds(uint256 _amount, address _userAccountAddress);
     address public owner;
 
-    mapping(string => address) userSmartWallets; // Map of phone numbers to their user-account
+    mapping(string => address) userSmartWallets; // Map of uids to their user-account
 
     constructor() public {
         owner = msg.sender;
@@ -24,7 +24,8 @@ contract SmartWalletManager {
      */
     function createWallet(string calldata _uid) external returns (bool) {
         require(owner == msg.sender, 'Caller must be the owner.');
-        require(bytes(_uid).length > 0, 'The telegramId cannot be empty.');
+        require(bytes(_uid).length > 0, 'The uid cannot be empty.');
+        require(userSmartWallets[_uid] == address(0), 'The uid already has a wallet.');
         userSmartWallets[_uid] = address(new UserSmartWallet(_uid));
         emit createdAccount(_uid, userSmartWallets[_uid]);
         return true;
@@ -37,7 +38,7 @@ contract SmartWalletManager {
      */
     function getWalletAddress(string memory _uid) public view returns (address) {
         require(msg.sender == owner, 'You must be the owner of the contract.');
-        require(bytes(_uid).length > 0, 'The telegramId cannot be empty.');
+        require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         return userSmartWallets[_uid];
     }
 
@@ -56,6 +57,6 @@ contract SmartWalletManager {
     }
 
     // Balance should be retrieved directly by calling the SmartWallet address
-    // function getBalance(string memory phoneNumber) public view returns(address){
+    // function getBalance(string memory _uid) public view returns(address){
     // }
 }
