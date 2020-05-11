@@ -26,7 +26,7 @@ endef
 #            COMMON                   #
 #######################################
 install: # to install all dependencies
-	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist > .env; fi
+	@if [ ! -f .env -a -f .env.dist ]; then cp .env.dist .env; fi
 	@$(MAKE) bot-install
 	@$(MAKE) contract-install
 	@$(MAKE) web-install
@@ -41,6 +41,7 @@ bot-install: ## to install dependencies
 	@firebase functions:config:get > .runtimeconfig.json
 
 bot-run: ## to start the local server
+	@$(NPM) $(PACKAGE_BOT) run build
 	@firebase emulators:start --only firestore,functions
 
 bot-run-watch: ## to start local server with watch
