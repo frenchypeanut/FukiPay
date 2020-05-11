@@ -1,5 +1,5 @@
 {
-  "name": "TelegramDeFi",
+  "name": "telegramdefi",
   "private": true,
   "workspaces": [
     "packages/*"
