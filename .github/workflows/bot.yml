@@ -10,9 +10,6 @@ jobs:
   deploy:
     name: Test and Deploy
     runs-on: ubuntu-18.04
-    defaults:
-      run:
-        working-directory: ./packages/bot
     steps:
       - name: Setup node
         uses: actions/setup-node@v1
@@ -21,9 +18,13 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm --prefix ./packages/smart-contract i
+          npm --prefix ./packages/bot i
+          npm --prefix ./packages/smart-contract run build
+          cd ./packages/bot/src && cp -r ../../smart-contract/artifacts artifacts
       - name: Run tests
-        run: npm run test
+        run: npm --prefix ./packages/bot run test
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
