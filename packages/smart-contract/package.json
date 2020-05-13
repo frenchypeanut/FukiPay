@@ -4,17 +4,18 @@
   "description": "Smart-Contract PoC for smart-wallet",
   "main": "index.js",
   "scripts": {
-    "build": "npm run compile && npx buidler typechain",
+    "build": "npm run compile_dai && npm run compile && npx buidler typechain",
     "compile": "npx buidler compile",
+    "compile_dai": "npx buidler compile --config buidler.config.dai.ts",
     "test": "npx buidler test",
     "coverage": "npm run build && npx buidler coverage --temp artifacts --network coverage",
     "precommit": "lint-staged"
   },
-  "repository": "https://github.com/FrenchyPeanut/TeleCryptoPay.git",
-  "author": "Charles BEYER <charles.beyer.pro@gmail.com> | BlockHub Team",
+  "repository": "https://github.com/FrenchyPeanut/TelegramDeFi.git",
+  "author": "BlockHub Team",
   "license": "MIT",
   "devDependencies": {
-    "@nomiclabs/buidler": "^1.3.1",
+    "@nomiclabs/buidler": "^1.3.3",
     "@nomiclabs/buidler-ethers": "^1.3.1",
     "@nomiclabs/buidler-etherscan": "^1.3.1",
     "@nomiclabs/buidler-waffle": "^1.3.1",
@@ -36,7 +37,8 @@
     "typechain-target-ethers": "^1.0.4",
     "typechain-target-truffle": "^1.0.2",
     "typechain-target-web3-v1": "^1.0.4",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "@openzeppelin/contracts": "^3.0.1"
   },
   "lint-staged": {
     "**/*.ts": [
