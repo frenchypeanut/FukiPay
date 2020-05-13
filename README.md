@@ -13,7 +13,7 @@ You need to have the following tools installed:
 - nvm (or please see `.nvmrc` for node version)
 - firebase-tools (`npm install -g firebase-tools`)
 - a bot see [official doc](https://core.telegram.org/bots#creating-a-new-bot)
-- curl and [jq](https://stedolan.github.io/jq/) (optional for some make targets)
+- curl, [jq](https://stedolan.github.io/jq/) and [sponge](https://joeyh.name/code/moreutils/) (optional for some make targets)
 
 ## How it works?
 
@@ -51,13 +51,13 @@ Only a few steps are necessary to install the project:
 
 2. Install dependencies with `make install`.
 
-3. Adjust firebase functions for your local needs by editing `.runtimeconfig.json` file
-   ⚠️ This step is very important because if you do not change the config,
-   you will alter the prod environment.
+3. Fill-in your custom configuration in the `.env` file
 
-4. Fill-in your dev bot token in the `.env` file
+4. Override local firebase configuration with `make bot-config`
 
 That's it! Let's go:
+
+Build the contract with `make contract-build`
 
 To launch the functions, run `make bot-run`.  
 A watcher is also available, just run `make bot-run-watch`.
