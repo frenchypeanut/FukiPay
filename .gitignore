@@ -3,7 +3,6 @@ node_modules
 
 # environment variables
 .env
-key.json
 
 # firebase cache folder when deploying from local
 .firebase
@@ -20,6 +19,7 @@ firestore-debug.log
 
 # Bot
 /packages/bot/lib
+/packages/bot/src/artifacts
 
 # Smart-contract
 /packages/smart-contract/artifacts

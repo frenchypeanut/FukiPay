@@ -38,6 +38,7 @@ bot-install: ## to install dependencies
 	@$(NPM) $(PACKAGE_BOT) i
 	@$(call read_env) && $(TG) webhook-check
 	@firebase functions:config:get > .runtimeconfig.json
+	@cd $(PACKAGE_BOT)/src && ln -s ../../smart-contract/artifacts artifacts
 
 bot-run: ## to start the local server
 	@$(NPM) $(PACKAGE_BOT) run build
