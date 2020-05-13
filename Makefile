@@ -3,8 +3,6 @@ contract-install contract-test-coverage contract-test help tg-cleanup tg-updates
 tg-webhook-delete tg-webhook-info tg-webhook web-build web-install web-start \
 web-test
 
-
-
 SHELL := /bin/bash
 
 TG = scripts/tg.sh
@@ -30,6 +28,7 @@ install: # to install all dependencies
 	@$(MAKE) bot-install
 	@$(MAKE) contract-install
 	@$(MAKE) web-install
+	@npm i
 
 
 #######################################

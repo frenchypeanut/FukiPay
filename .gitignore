@@ -18,6 +18,9 @@ npm-debug.log*
 firebase-debug.log
 firestore-debug.log
 
+# Bot
+/packages/bot/lib
+
 # Smart-contract
 /packages/smart-contract/artifacts
 /packages/smart-contract/build

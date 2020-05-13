@@ -1,21 +1,15 @@
 import * as admin from 'firebase-admin';
 
-let cachedAdmin: admin.app.App;
+const adm = (app) => {
+  return {
+    getAdmin() {
+      return app;
+    },
 
-export function init(overrideApp?: admin.app.App) {
-  if (cachedAdmin) {
-    return;
-  }
+    getFirestore() {
+      return app.firestore();
+    },
+  };
+};
 
-  cachedAdmin = overrideApp || admin.initializeApp();
-}
-
-export function getAdmin() {
-  return cachedAdmin;
-}
-
-export function getFirestore() {
-  return cachedAdmin.firestore();
-}
-
-export const FieldValue = admin.firestore.FieldValue;
+export default adm(admin.initializeApp());
