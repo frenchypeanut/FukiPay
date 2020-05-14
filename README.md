@@ -36,8 +36,10 @@ On first deploy, some config params must have been set:
 ```bash
 firebase functions:config:set bot.token="..."
 firebase functions:config:set contract.address="..."
+firebase functions:config:set infura.apikey="..."
+firebase functions:config:set network.btc="..."
+firebase functions:config:set network.eth="..."
 firebase functions:config:set owner.pk="..."
-firebase functions:config:set network.name="..."
 ```
 
 ### Functions Dev

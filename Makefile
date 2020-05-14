@@ -1,5 +1,5 @@
-.PHONY: bot-check bot-config bot-install bot-run bot-run-watch \
-bot-test contract-build contract-deploy contract-install \
+.PHONY: bot-check bot-config bot-db-reset bot-install bot-run \
+bot-run-watch bot-test contract-build contract-deploy contract-install \
 contract-test-coverage contract-test help tg-cleanup tg-updates \
 tg-webhook-delete tg-webhook-info tg-webhook web-build web-install \
 web-start web-test
@@ -50,12 +50,16 @@ bot-config: ## to override firebase config
 	@$(call read_env) && \
 	$(call set_json_key,.runtimeconfig.json,.bot.token,$$BOT_TOKEN) && \
 	$(call set_json_key,.runtimeconfig.json,.contract.address,$$CONTRACT_ADDRESS) && \
-	$(call set_json_key,.runtimeconfig.json,.infura.apikey,$$INFURA_APIKEY) && \
+	$(call set_json_key,.runtimeconfig.json,.infura.apikey,$$INFURA_API_KEY) && \
 	$(call set_json_key,.runtimeconfig.json,.owner.pk,$$OWNER_PK) && \
-	$(call set_json_key,.runtimeconfig.json,.network.name,$$NETWORK_NAME)
+	$(call set_json_key,.runtimeconfig.json,.network.eth,$$NETWORK_ETH) && \
+	$(call set_json_key,.runtimeconfig.json,.network.btc,$$NETWORK_BTC)
 
-bot-check:
+bot-check: ## to check bot config
 	@$(call read_env) && $(TG) webhook-check
+
+bot-db-reset: ## to reset the db
+	@scripts/firestore-reset.sh
 
 bot-install: ## to install dependencies
 	@$(NPM) $(PACKAGE_BOT) i

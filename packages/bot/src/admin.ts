@@ -1,15 +1,13 @@
 import * as admin from 'firebase-admin';
 
-const adm = (app) => {
-  return {
-    getAdmin() {
-      return app;
-    },
+const adm = (_admin) => {
+  _admin.initializeApp();
 
+  return {
     getFirestore() {
-      return app.firestore();
+      return _admin.firestore();
     },
   };
 };
 
-export default adm(admin.initializeApp());
+export default adm(admin);

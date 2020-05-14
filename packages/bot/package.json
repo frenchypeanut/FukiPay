@@ -31,6 +31,7 @@
     "firebase-admin": "^8.12.1",
     "firebase-functions": "^3.6.1",
     "firebase-functions-test": "^0.2.1",
+    "ptokens-pbtc": "^0.4.2",
     "telegraf": "^3.38.0",
     "uuid": "^8.0.0"
   },
