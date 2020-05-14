@@ -12,7 +12,9 @@ Clone this repository, then install the dependencies with `npm install`. Build e
 
 ### Build Contracts
 
-`npm run compile`
+Use the command `npm run compile` to compile all the smart-contracts needed for the Smart-Wallets
+
+And run only once `npm run compile_dai` to compile the DAI smart-contract.
 
 ### Generate TypeChain Typings
 
@@ -35,6 +37,10 @@ Note: The branch coverage is 75 %.
 Create/modify network config in `buidler.config.ts` and add API key and private key, then run:
 
 `npx buidler run --network rinkeby scripts/deploy.ts`
+
+Do the same inside the file `buidler.config.dai.ts` if you want to have a test contract for DAI and run:
+
+`npx buidler run --network rinkeby scripts/deploy_dai.ts`
 
 ### Verify on Etherscan
 

@@ -5,11 +5,13 @@ import './UserSmartWallet.sol';
 
 
 contract SmartWalletManager {
-    event createdAccount(string _uid, address _userAccountAddress);
+    event CreatedAccount(string _uid, address _userAccountAddress);
     event FundedAccountAddress(string _uid, address _userAccountAddress);
     event FundedAccountAmount(string _uid, uint256 _amount);
     event SpendFunds(uint256 _amount, address _userAccountAddress);
+
     address public owner;
+    address public DAI_contract;
 
     mapping(string => address) userSmartWallets; // Map of uids to their user-account
 
@@ -26,8 +28,8 @@ contract SmartWalletManager {
         require(owner == msg.sender, 'Caller must be the owner.');
         require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         require(userSmartWallets[_uid] == address(0), 'The uid already has a wallet.');
-        userSmartWallets[_uid] = address(new UserSmartWallet(_uid));
-        emit createdAccount(_uid, userSmartWallets[_uid]);
+        userSmartWallets[_uid] = address(new UserSmartWallet(_uid, DAI_contract));
+        emit CreatedAccount(_uid, userSmartWallets[_uid]);
         return true;
     }
 
@@ -54,6 +56,13 @@ contract SmartWalletManager {
         );
         emit FundedAccountAddress(_uid, msg.sender);
         emit FundedAccountAmount(_uid, _amount);
+    }
+
+    /** @dev Update DAI contract address if necessary
+     */
+    function setDAIAddress(address _DAI_contract) public {
+        require(owner == msg.sender, 'Only the owner can update the contract address');
+        DAI_contract = _DAI_contract; // DAI in Kovan: 0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa
     }
 
     // Balance should be retrieved directly by calling the SmartWallet address
