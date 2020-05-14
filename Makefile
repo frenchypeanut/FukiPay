@@ -1,7 +1,8 @@
-.PHONY: bot-install bot-run bot-run-watch bot-test contract-build contract-deploy \
-contract-install contract-test-coverage contract-test help tg-cleanup tg-updates \
-tg-webhook-delete tg-webhook-info tg-webhook web-build web-install web-start \
-web-test
+.PHONY: bot-check bot-config bot-install bot-run bot-run-watch \
+bot-test contract-build contract-deploy contract-install \
+contract-test-coverage contract-test help tg-cleanup tg-updates \
+tg-webhook-delete tg-webhook-info tg-webhook web-build web-install \
+web-start web-test
 
 SHELL := /bin/bash
 
@@ -15,10 +16,20 @@ NETWORK ?= buidlerevm
 
 default: help
 
-define read_env
-	@set -o allexport && source .env && set +o allexport
+#
+# set json key with value in file
+#
+# $(1) the file
+# $(2) the key
+# $(3) the value
+#
+define set_json_key
+	jq '$(2) |= $$v' $(1) --arg v $(3) | sponge $(1)
 endef
 
+define read_env
+	set -o allexport && source .env && set +o allexport
+endef
 
 #######################################
 #            COMMON                   #
@@ -34,17 +45,29 @@ install: # to install all dependencies
 #######################################
 #               BOT                   #
 #######################################
+bot-config: ## to override firebase config
+	@firebase functions:config:get > .runtimeconfig.json
+	@$(call read_env) && \
+	$(call set_json_key,.runtimeconfig.json,.bot.token,$$BOT_TOKEN) && \
+	$(call set_json_key,.runtimeconfig.json,.contract.address,$$CONTRACT_ADDRESS) && \
+	$(call set_json_key,.runtimeconfig.json,.infura.apikey,$$INFURA_APIKEY) && \
+	$(call set_json_key,.runtimeconfig.json,.owner.pk,$$OWNER_PK) && \
+	$(call set_json_key,.runtimeconfig.json,.network.name,$$NETWORK_NAME)
+
+bot-check:
+	@$(call read_env) && $(TG) webhook-check
+
 bot-install: ## to install dependencies
 	@$(NPM) $(PACKAGE_BOT) i
-	@$(call read_env) && $(TG) webhook-check
-	@firebase functions:config:get > .runtimeconfig.json
 	@cd $(PACKAGE_BOT)/src && ln -s ../../smart-contract/artifacts artifacts
 
 bot-run: ## to start the local server
+	@$(MAKE) bot-check
 	@$(NPM) $(PACKAGE_BOT) run build
 	@firebase emulators:start --only firestore,functions
 
 bot-run-watch: ## to start local server with watch
+	@$(MAKE) bot-check
 	@$(MAKE) bot-run & $(NPM) $(PACKAGE_BOT) run watch
 
 bot-test: ## to launch tests
