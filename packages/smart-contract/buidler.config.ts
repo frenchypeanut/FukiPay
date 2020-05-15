@@ -1,16 +1,15 @@
 import { BuidlerConfig, usePlugin } from '@nomiclabs/buidler/config';
-import * as dotenv from 'dotenv';
-dotenv.config({ path: __dirname + '/./../../.env' });
+import {
+  ETHERSCAN_API_KEY,
+  INFURA_API_KEY,
+  RINKEBY_PRIVATE_KEY,
+  ROPSTEN_PRIVATE_KEY,
+} from './config';
 
 usePlugin('@nomiclabs/buidler-waffle');
 usePlugin('@nomiclabs/buidler-etherscan');
 usePlugin('buidler-typechain');
 usePlugin('solidity-coverage');
-
-const INFURA_API_KEY = parseConf('INFURA_API_KEY');
-const RINKEBY_PRIVATE_KEY = parseConf('RINKEBY_PRIVATE_KEY');
-const ROPSTEN_PRIVATE_KEY = parseConf('ROPSTEN_PRIVATE_KEY');
-const ETHERSCAN_API_KEY = parseConf('ETHERSCAN_API_KEY');
 
 const config: BuidlerConfig = {
   defaultNetwork: 'buidlerevm',
@@ -18,7 +17,7 @@ const config: BuidlerConfig = {
     version: '0.6.2',
   },
   paths: {
-    sources: './contracts/Smart-Wallet'
+    sources: './contracts/Smart-Wallet',
   },
   networks: {
     rinkeby: {
@@ -42,9 +41,5 @@ const config: BuidlerConfig = {
     target: 'ethers',
   },
 };
-
-function parseConf(key: string): string {
-  return process.env[key] ?? '';
-}
 
 export default config;
