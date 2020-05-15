@@ -1,12 +1,7 @@
 import { BuidlerConfig, usePlugin } from '@nomiclabs/buidler/config';
-import * as dotenv from 'dotenv';
-dotenv.config({ path: __dirname + '/./../../.env' });
+import { INFURA_API_KEY, RINKEBY_PRIVATE_KEY, ROPSTEN_PRIVATE_KEY } from './config';
 
 usePlugin('buidler-typechain');
-
-const INFURA_API_KEY = parseConf('INFURA_API_KEY');
-const RINKEBY_PRIVATE_KEY = parseConf('RINKEBY_PRIVATE_KEY');
-const ROPSTEN_PRIVATE_KEY = parseConf('ROPSTEN_PRIVATE_KEY');
 
 const config: BuidlerConfig = {
   defaultNetwork: 'buidlerevm',
@@ -28,11 +23,7 @@ const config: BuidlerConfig = {
     coverage: {
       url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client
     },
-  }
+  },
 };
-
-function parseConf(key: string): string {
-  return process.env[key] ?? '';
-}
 
 export default config;

@@ -8,7 +8,7 @@
     "compile": "npx buidler compile",
     "compile_dai": "npx buidler compile --config buidler.config.dai.ts",
     "test": "npx buidler test",
-    "coverage": "npm run build && npx buidler coverage --temp artifacts --network coverage",
+    "coverage": "npm run build && npx buidler coverage --network coverage",
     "precommit": "lint-staged"
   },
   "repository": "https://github.com/FrenchyPeanut/TelegramDeFi.git",
