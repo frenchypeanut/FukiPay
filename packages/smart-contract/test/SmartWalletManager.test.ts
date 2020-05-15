@@ -69,12 +69,6 @@ describe('SmartWalletManager', () => {
     let smartWalletAddress = ZERO;
     const amountToFund = '1';
 
-    it('set the DAI contract address inside the smart-wallet manager', async () => {
-      expect(await smartWalletManager.DAI_contract()).to.eq(ZERO);
-      await smartWalletManager.setDAIAddress(dai.address);
-      expect(await smartWalletManager.DAI_contract()).to.eq(dai.address);
-    });
-
     it('create a smart-wallet', async () => {
       expect(await smartWalletManager.getWalletAddress(UID)).to.eq(ZERO);
       await smartWalletManager.createWallet(UID);
@@ -93,32 +87,56 @@ describe('SmartWalletManager', () => {
         UserSmartWalletArtifact.abi,
         smartWalletAddress,
       );
-      expect(await userSmartWallet.owner()).to.eq(await smartWalletManager.address);
+      // WIP before: expect(await userSmartWallet.owner()).to.eq(await smartWalletManager.address);
+      expect(await userSmartWallet.owner()).to.eq(await signers[0].getAddress());
       expect((await userSmartWallet.getBalance()).toString()).to.eq(
         await ethers.utils.parseEther(amountToFund),
       );
     });
 
-    it('fund a smart-wallet with ETH and intercept the first emitted event', async () => {
+    it('fund a smart-wallet with ETH and intercept the emitted event', async () => {
       await expect(
         signers[1].sendTransaction({
           to: smartWalletAddress,
           value: ethers.utils.parseEther(amountToFund),
         }),
       )
-        .to.emit(smartWalletManager, 'FundedAccountAddress')
-        .withArgs(UID, smartWalletAddress);
+        .to.emit(smartWalletManager, 'FundedAccount')
+        .withArgs(UID, await signers[1].getAddress(), ethers.utils.parseEther(amountToFund));
     });
 
-    it('fund a smart-wallet with ETH and intercept the second emitted event', async () => {
+    it('smart-wallet can send ETH', async () => {
+      const amountToSend = ethers.utils.parseEther('1');
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
+      const previousBalance = (await userSmartWallet.getBalance()) / 1e18;
+      await userSmartWallet.transferETH(await signers[1].getAddress(), amountToSend);
+      expect(previousBalance).to.greaterThan((await userSmartWallet.getBalance()) / 1e18);
+    });
+
+    it('can not send more ETH than it currently have', async () => {
+      const amountToSend = ethers.utils.parseEther('100');
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
       await expect(
-        signers[2].sendTransaction({
-          to: smartWalletAddress,
-          value: ethers.utils.parseEther(amountToFund),
-        }),
-      )
-        .to.emit(smartWalletManager, 'FundedAccountAmount')
-        .withArgs(UID, ethers.utils.parseEther(amountToFund));
+        userSmartWallet.transferETH(await signers[1].getAddress(), amountToSend),
+      ).to.be.revertedWith('Insufficient balance inside the smart-wallet');
+    });
+
+    it('can not send ETH if the caller is not the owner', async () => {
+      const amountToSend = ethers.utils.parseEther('1');
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
+      const nonAdminUserSmartWallet = userSmartWallet.connect(<Wallet>signers[1]);
+      await expect(
+        nonAdminUserSmartWallet.transferETH(await signers[1].getAddress(), amountToSend),
+      ).to.be.revertedWith('Only the owner can access this function.');
     });
 
     it('can not create a smart-wallet to the same user twice', async () => {
@@ -185,7 +203,11 @@ describe('SmartWalletManager', () => {
         UserSmartWalletArtifact.abi,
         smartWalletAddress,
       );
-      await userSmartWallet.transferDAItoken(await signers[1].getAddress(), amountToSend);
+      await userSmartWallet.transferDAItoken(
+        dai.address,
+        await signers[1].getAddress(),
+        amountToSend,
+      );
       expect((await dai.balanceOf(await signers[1].getAddress())).toNumber()).to.equal(
         amountToSend,
       );

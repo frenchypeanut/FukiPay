@@ -2,10 +2,15 @@ pragma solidity ^0.6.2;
 
 import '@nomiclabs/buidler/console.sol';
 import './SmartWalletManager.sol';
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import '@openzeppelin/contracts/math/SafeMath.sol';
+import '@openzeppelin/contracts/token/ERC777/IERC777.sol';
+import '@openzeppelin/contracts/introspection/IERC1820Registry.sol';
+import '@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol';
+import '@openzeppelin/contracts/token/ERC777/IERC777Sender.sol';
+import '@openzeppelin/contracts/introspection/ERC1820Implementer.sol';
 
 
-// Adding only the ERC-20 function we need for DAI
+// Adding the ERC-20 functions we need for DAI
 interface DaiToken {
     function balanceOf(address guy) external view returns (uint256);
 
@@ -13,15 +18,47 @@ interface DaiToken {
 }
 
 
-// Adding only the ERC-20 function we need for a token
+// Adding the ERC-20 functions we need for a token
 interface Token {
     function balanceOf(address account) external view returns (uint256);
 
     function transfer(address recipient, uint256 amount) external returns (bool);
+
+    function approve(address spender, uint256 amount) external returns (bool);
 }
 
 
-contract UserSmartWallet {
+// Adding the ERC-20 functions we need for Aave tokens
+interface aToken {
+    function redeem(uint256 _amount) external;
+
+    function balanceOf(address _user) external view returns (uint256);
+}
+
+
+// Adding lending function
+interface LendingPool {
+    function deposit(address _reserve, uint256 _amount, uint16 _referralCode) external payable;
+}
+
+
+// Adding lendingpool provider functions
+interface LendingPoolAddressesProvider {
+    function getLendingPool() external view returns (address);
+
+    function getLendingPoolCore() external view returns (address payable);
+}
+
+
+// Adding pToken peg-out function
+interface pTokens {
+    function redeem(uint256 amount, string calldata underlyingAssetRecipient)
+        external
+        returns (bool);
+}
+
+
+contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer {
     using SafeMath for uint256;
     address public owner;
     string public uid;
@@ -29,25 +66,15 @@ contract UserSmartWallet {
     address public userBackupKey;
     bool public activated;
 
-    SmartWalletManager smartWalletManager;
+    SmartWalletManager private smartWalletManager;
 
-    DaiToken daitoken;
-
-    constructor(string memory _uid, address DAI_contract) public {
-        owner = msg.sender;
+    constructor(string memory _uid) public {
         smartWalletManager = SmartWalletManager(msg.sender);
+        owner = smartWalletManager.owner();
         require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         uid = _uid;
         activated = true;
         userBalance = 0;
-        setDAIContract(DAI_contract);
-    }
-
-    /** @dev Update DAI contract address if necessary
-     */
-    function setDAIContract(address DAI_contract) public {
-        require(owner == msg.sender, 'Only the owner can update the contract address');
-        daitoken = DaiToken(DAI_contract); // DAI in Kovan: 0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa
     }
 
     /** @dev Process the deposit of funds when sent to this contract.
@@ -55,7 +82,7 @@ contract UserSmartWallet {
     receive() external payable {
         require(msg.data.length == 0); // Check if this works
         userBalance = userBalance.add(msg.value);
-        smartWalletManager.fundsAreReceived(uid, msg.value);
+        smartWalletManager.fundsAreReceived(uid, msg.value, msg.sender);
     }
 
     /** @dev Get the current balance of the smart-wallet.
@@ -65,23 +92,35 @@ contract UserSmartWallet {
         return userBalance;
     }
 
+    /** @dev Transfer ETH
+     */
+    function transferETH(address payable recipient, uint256 _amount) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        require(_amount > 0, 'Cannot send empty or negative amount.');
+        require(address(this).balance >= _amount, 'Insufficient balance inside the smart-wallet.');
+        require(userBalance >= _amount, 'Insufficient balance inside the smart-wallet.');
+        recipient.send(_amount);
+        userBalance = userBalance.sub(_amount);
+    }
+
     /** @dev Transfer DAI
      */
-    function transferDAItoken(address recipient, uint256 _amount) public {
-        // To-do: owner check . . .
+    function transferDAItoken(address tokenAddress, address recipient, uint256 _amount) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        require(tokenAddress != address(0), 'Cannot use zero address.');
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(
-            daitoken.balanceOf(address(this)) >= _amount,
+            DaiToken(tokenAddress).balanceOf(address(this)) >= _amount,
             'Insufficient balance inside the smart-wallet'
         );
-        daitoken.transfer(recipient, _amount);
+        DaiToken(tokenAddress).transfer(recipient, _amount);
         // emit TransferredDAItoken(recipient, _amount);
     }
 
     /** @dev Transfer ERC20 token
      */
     function transferERC20token(address tokenAddress, address recipient, uint256 _amount) public {
-        // To-do: owner check . . .
+        require(msg.sender == owner, 'Only the owner can access this function.');
         require(tokenAddress != address(0), 'Cannot use zero address.');
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(
@@ -90,5 +129,145 @@ contract UserSmartWallet {
         );
         Token(tokenAddress).transfer(recipient, _amount);
         // emit TransferredERC20token(recipient, _amount);
+    }
+
+    /** @dev Deposit ERC-20 tokens inside Aave liquidity pools and get aTokens in return
+     */
+    function depositFundsAave(address tokenAddress, uint256 _amount) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        require(tokenAddress != address(0), 'Cannot use zero address.');
+        require(_amount > 0, 'Cannot send empty or negative amount.');
+        require(
+            Token(tokenAddress).balanceOf(address(this)) >= _amount,
+            'Insufficient balance inside the smart-wallet'
+        );
+        // Retrieve LendingPool address
+        LendingPoolAddressesProvider provider = LendingPoolAddressesProvider(
+            address(0x1c8756FD2B28e9426CDBDcC7E3c4d64fa9A54728)
+        ); // Ropsten address,
+        // for other addresses: https://docs.aave.com/developers/developing-on-aave/deployed-contract-instances
+        LendingPool lendingPool = LendingPool(provider.getLendingPool());
+        uint16 referral = 0;
+        // Approve LendingPool contract to move your tokens:
+        Token(tokenAddress).approve(provider.getLendingPoolCore(), _amount);
+        lendingPool.deposit(tokenAddress, _amount, referral);
+    }
+
+    /** @dev Deposit ERC-20 tokens inside Aave liquidity pools and get aTokens in return
+     */
+    function redeemAaveToken(address aTokenAddress, uint256 _amount) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        require(aTokenAddress != address(0), 'Cannot use zero address.');
+        require(_amount > 0, 'Cannot send empty or negative amount.');
+        require(
+            aToken(aTokenAddress).balanceOf(address(this)) >= _amount,
+            'Insufficient balance inside the smart-wallet'
+        );
+        aToken(aTokenAddress).redeem(_amount);
+    }
+
+    /** @dev Testnet Registry address
+     */
+    IERC1820Registry private _erc1820 = IERC1820Registry(
+        0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24
+    );
+    bytes32 private constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256('ERC777TokensRecipient');
+    bytes32 public constant TOKENS_SENDER_INTERFACE_HASH = keccak256('ERC777TokensSender');
+    IERC777 private _ptoken;
+    bool private _shouldRevertSend;
+    bool private _shouldRevertReceive;
+
+    /** @dev Boolean to administer receiver hook for ERC-777
+     */
+    function setShouldRevertReceive(bool shouldRevert) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        _shouldRevertReceive = shouldRevert;
+    }
+
+    /** @dev Boolean to administer sending hook for ERC-777
+     */
+    function setShouldRevertSend(bool shouldRevertSend) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        _shouldRevertSend = shouldRevertSend;
+    }
+
+    /** @dev ERC-1820 interface register
+     */
+    function setERC1820(address ptokenAddress) public {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        _ptoken = IERC777(ptokenAddress);
+        _erc1820.setInterfaceImplementer(
+            address(this),
+            TOKENS_RECIPIENT_INTERFACE_HASH,
+            address(this)
+        );
+    }
+
+    /** @dev ERC-777 Receiver hook
+     */
+    function tokensReceived(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external override {
+        if (_shouldRevertReceive) {
+            revert();
+        }
+
+        require(msg.sender == address(_ptoken), 'Invalid ptoken address');
+
+        // uint256 fromBalance = token.balanceOf(from);
+        // when called due to burn, to will be the zero address, which will have a balance of 0
+        // uint256 toBalance = token.balanceOf(to);
+
+        // emit TokensReceivedCalled(
+        //     operator,
+        //     from,
+        //     to,
+        //     amount,
+        //     userData,
+        //     operatorData,
+        //     address(token),
+        //     fromBalance,
+        //     toBalance
+        // );
+    }
+
+    function senderFor(address account) public {
+        _registerInterfaceForAddress(TOKENS_SENDER_INTERFACE_HASH, account);
+    }
+
+    /** @dev ERC-777 Transfer hook
+     */
+    function tokensToSend(
+        address operator,
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external override {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        if (_shouldRevertSend) {
+            revert();
+        }
+        // do stuff
+        // emit DoneStuff(operator, from, to, amount, userData, operatorData);
+    }
+
+    /** @dev Transfer pBTC token for burning to peg-out BTC coin
+     */
+    function swappBTCtoBTC(address _pTokens, uint256 _amount, string memory _BTCRecipientAddress)
+        public
+        returns (bool)
+    {
+        require(msg.sender == owner, 'Only the owner can access this function.');
+        // minimum amount that can be pegged-out from pBTC network:
+        // 0.00005 pBTC with 18 decimals
+        // require(_amount >= 50000000000000, 'Impossible to swap less than 0.00005 pBTC');
+        return pTokens(_pTokens).redeem(_amount, _BTCRecipientAddress);
     }
 }

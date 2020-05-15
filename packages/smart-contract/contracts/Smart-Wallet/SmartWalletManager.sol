@@ -3,15 +3,12 @@ pragma solidity ^0.6.2;
 import '@nomiclabs/buidler/console.sol';
 import './UserSmartWallet.sol';
 
-
 contract SmartWalletManager {
     event CreatedAccount(string _uid, address _userAccountAddress);
-    event FundedAccountAddress(string _uid, address _userAccountAddress);
-    event FundedAccountAmount(string _uid, uint256 _amount);
-    event SpendFunds(uint256 _amount, address _userAccountAddress);
+    event FundedAccount(string _uid, address _fromAddress, uint256 _amount);
+    event SpendFunds(uint256 _amount, address _toAddress);
 
     address public owner;
-    address public DAI_contract;
 
     mapping(string => address) userSmartWallets; // Map of uids to their user-account
 
@@ -28,7 +25,7 @@ contract SmartWalletManager {
         require(owner == msg.sender, 'Caller must be the owner.');
         require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         require(userSmartWallets[_uid] == address(0), 'The uid already has a wallet.');
-        userSmartWallets[_uid] = address(new UserSmartWallet(_uid, DAI_contract));
+        userSmartWallets[_uid] = address(new UserSmartWallet(_uid)); // DAI Ropsten: address(0xf80A32A835F79D7787E8a8ee5721D0fEaFd78108)
         emit CreatedAccount(_uid, userSmartWallets[_uid]);
         return true;
     }
@@ -49,20 +46,12 @@ contract SmartWalletManager {
      * @param _uid unique identifier of the smart-wallet receiving funds.
      * @param _amount ETH Amount received by the smart-wallet.
      */
-    function fundsAreReceived(string calldata _uid, uint256 _amount) external {
+    function fundsAreReceived(string calldata _uid, uint256 _amount, address _sender) external {
         require(
             msg.sender == userSmartWallets[_uid],
             'Only a whitelisted smart-wallet should be emitting events.'
         );
-        emit FundedAccountAddress(_uid, msg.sender);
-        emit FundedAccountAmount(_uid, _amount);
-    }
-
-    /** @dev Update DAI contract address if necessary
-     */
-    function setDAIAddress(address _DAI_contract) public {
-        require(owner == msg.sender, 'Only the owner can update the contract address');
-        DAI_contract = _DAI_contract; // DAI in Kovan: 0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa
+        emit FundedAccount(_uid, _sender, _amount);
     }
 
     // Balance should be retrieved directly by calling the SmartWallet address
