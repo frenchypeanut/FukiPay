@@ -1,5 +1,6 @@
 import Telegraf, { Context, Extra } from 'telegraf';
 import { pBTC } from 'ptokens-pbtc';
+import QRCode from 'qrcode';
 import provider from '../ethereum/provider';
 import { users } from '../db';
 import { OWNER_PK, NETWORK_BTC } from '../config';
@@ -19,7 +20,7 @@ export default function setupReceive(bot: Telegraf<Context>) {
 
     if (!user.wallet_address) {
       return ctx.reply(
-        'Sorry, you don"t have a wallet address yet, maybe just wait a few moment...',
+        "Sorry, you don't have a wallet address yet, maybe just wait a few moment...",
       );
     }
 
@@ -28,20 +29,58 @@ export default function setupReceive(bot: Telegraf<Context>) {
       Extra.HTML().markup((m) =>
         m.inlineKeyboard([
           m.callbackButton('ETH', 'receive_ETH'),
-          m.callbackButton('BTC', 'receive_pBTC'),
+          m.callbackButton('BTC', 'receive_BTC'),
         ]),
       ),
     );
   });
 
   bot.action('receive_ETH', async (ctx) => {
-    const id: number = ctx.from?.id!;
-    const user = await users.findById(id);
-
-    return ctx.reply(`Ỳour ETH address is ${user.wallet_address}`);
+    return ctx.reply(
+      'You are about to ask some ETH. Do you want to set an amount?',
+      Extra.HTML().markup((m) =>
+        m.inlineKeyboard([
+          m.callbackButton('yep!', 'receive_ETH_ask_amount'),
+          m.callbackButton('nop', 'receive_ETH_QRCode'),
+        ]),
+      ),
+    );
   });
 
-  bot.action('receive_pBTC', async (ctx) => {
+  bot.action('receive_ETH_ask_amount', async (ctx) => {
+    ctx['session'].action = 'receive_ETH';
+    ctx['session'].amount = 0;
+
+    return ctx.reply(
+      'Please enter the amount of ETH you want to ask for:',
+      Extra.HTML().markup((m) => m.inlineKeyboard([m.callbackButton('Abort', 'receive_ETH')])),
+    );
+  });
+
+  bot.action('receive_ETH_QRCode', async (ctx) => {
+    const id: number = ctx.from?.id!;
+    const user = await users.findById(id);
+    const amount = ctx['session'].amount;
+
+    delete ctx['session'].action;
+    delete ctx['session'].amount;
+
+    let link = `ethereum:${user.wallet_address}`;
+    if (amount) {
+      link += `?amount=${amount}`;
+    }
+
+    const qrcode: string = await QRCode.toDataURL(link);
+
+    return ctx.replyWithPhoto(
+      {
+        source: Buffer.from(qrcode.substring(22), 'base64'),
+      },
+      { caption: user.wallet_address },
+    );
+  });
+
+  bot.action('receive_BTC', async (ctx) => {
     const id: number = ctx.from?.id!;
     const user = await users.findById(id);
 
@@ -51,6 +90,47 @@ export default function setupReceive(bot: Telegraf<Context>) {
       await users.update(user);
     }
 
-    return ctx.reply(`Ỳour BTC address is ${user.pBTC_address}`);
+    return ctx.reply(
+      'You are about to ask some BTC. Do you want to set an amount?',
+      Extra.HTML().markup((m) =>
+        m.inlineKeyboard([
+          m.callbackButton('yep!', 'receive_BTC_ask_amount'),
+          m.callbackButton('nop', 'receive_BTC_QRCode'),
+        ]),
+      ),
+    );
+  });
+
+  bot.action('receive_BTC_ask_amount', async (ctx) => {
+    ctx['session'].action = 'receive_BTC';
+    ctx['session'].amount = 0;
+
+    return ctx.reply(
+      'Please enter the amount of BTC you want to ask for:',
+      Extra.HTML().markup((m) => m.inlineKeyboard([m.callbackButton('Abort', 'receive_BTC')])),
+    );
+  });
+
+  bot.action('receive_BTC_QRCode', async (ctx) => {
+    const id: number = ctx.from?.id!;
+    const user = await users.findById(id);
+    const amount = ctx['session'].amount;
+
+    delete ctx['session'].action;
+    delete ctx['session'].amount;
+
+    let link = `bitcoin:${user.pBTC_address}`;
+    if (amount) {
+      link += `?amount=${amount}`;
+    }
+
+    const qrcode: string = await QRCode.toDataURL(link);
+
+    return ctx.replyWithPhoto(
+      {
+        source: Buffer.from(qrcode.substring(22), 'base64'),
+      },
+      { caption: user.pBTC_address },
+    );
   });
 }

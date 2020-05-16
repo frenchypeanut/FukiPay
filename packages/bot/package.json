@@ -32,6 +32,7 @@
     "firebase-functions": "^3.6.1",
     "firebase-functions-test": "^0.2.1",
     "ptokens-pbtc": "^0.4.2",
+    "qrcode": "^1.4.4",
     "telegraf": "^3.38.0",
     "uuid": "^8.0.0"
   },
