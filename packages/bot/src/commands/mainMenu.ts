@@ -15,9 +15,12 @@ export default function setupMainMenu(bot: Telegraf<Context>) {
       );
     } else {
       return ctx.reply(
-        `@${user.username} you wallet is ready to go 🚀`,
+        `@${user.username} you wallet is ready to go 🚀 (address: ${user.wallet_address})`,
         Extra.HTML().markup((m) =>
-          m.inlineKeyboard([m.callbackButton('Receive payment', 'receive')]),
+          m.inlineKeyboard([
+            m.callbackButton('Receive', 'receive'),
+            m.callbackButton('Balance', 'balance'),
+          ]),
         ),
       );
     }

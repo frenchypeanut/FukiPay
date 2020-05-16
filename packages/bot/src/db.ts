@@ -20,6 +20,8 @@ export enum WalletStatus {
   PendingCreation = 'pending_creation',
 }
 
+export const sessions = db.collection('sessions');
+
 export const users = ((_db) => {
   return {
     async findByUid(uid: string) {

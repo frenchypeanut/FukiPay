@@ -2,10 +2,14 @@ import Telegraf, { Context } from 'telegraf';
 import { users, txs, TxStatus, TxType, WalletStatus } from '../db';
 import smartWallet from '../ethereum/smart-wallet';
 
-export default function setupNewWallet(bot: Telegraf<Context>) {
+export default function setupCreateWallet(bot: Telegraf<Context>) {
   bot.action('create_wallet', async (ctx) => {
     const id: number = ctx.from?.id!;
     const user = await users.findById(id);
+
+    if (user.wallet_status !== WalletStatus.None) {
+      return ctx.reply('You already have a wallet, or it is in the process of being created.');
+    }
 
     const tx = await smartWallet.create(`${user.uid}`);
     user.wallet_status = WalletStatus.PendingCreation;

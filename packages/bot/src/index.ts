@@ -4,14 +4,20 @@ import setupCatchAll from './commands/catchAll';
 import setupMainMenu from './commands/mainMenu';
 import setupCreateWallet from './commands/createWallet';
 import setupStart from './commands/start';
+import setupBalance from './commands/balance';
+import setupReceive from './commands/receive';
 import notificationHandler from './ethereum/notificationHandler';
 import { BOT_TOKEN } from './config';
 
 const bot: Telegraf<Context> = new Telegraf(BOT_TOKEN);
 
+setupCreateWallet(bot);
+setupBalance(bot);
+setupReceive(bot);
 setupStart(bot);
 setupMainMenu(bot);
-setupCreateWallet(bot);
+
+// catch all
 setupCatchAll(bot);
 
 /**
