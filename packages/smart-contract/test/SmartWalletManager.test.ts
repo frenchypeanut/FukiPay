@@ -7,8 +7,8 @@ import { SmartWalletManager } from '../typechain/SmartWalletManager';
 import UserSmartWalletArtifact from '../artifacts/UserSmartWallet.json';
 import { TransactionResponse } from 'ethers/providers';
 // import { UserSmartWallet } from '../typechain/UserSmartWallet'
-import BlockHubTokenArtifact from '../artifacts/BlockHubToken.json';
-import { BlockHubToken } from '../typechain/BlockHubToken';
+import SimpleERC20TokenArtifact from '../artifacts/SimpleERC20Token.json';
+import { SimpleERC20Token } from '../typechain/SimpleERC20Token';
 import DaiArtifact from '../artifacts/Dai.json';
 import { Dai } from '../typechain/Dai';
 
@@ -19,7 +19,7 @@ const ZERO = '0x0000000000000000000000000000000000000000';
 describe('SmartWalletManager', () => {
   let signers: Signer[];
   let smartWalletManager: SmartWalletManager;
-  let blockHubToken: BlockHubToken;
+  let simpleERC20Token: SimpleERC20Token;
   const INITIAL_SUPPLY = 1000000;
   let dai: Dai;
 
@@ -30,9 +30,9 @@ describe('SmartWalletManager', () => {
       SmartWalletManagerArtifact,
     )) as SmartWalletManager;
 
-    blockHubToken = (await deployContract(<Wallet>signers[0], BlockHubTokenArtifact, [
+    simpleERC20Token = (await deployContract(<Wallet>signers[0], SimpleERC20TokenArtifact, [
       INITIAL_SUPPLY,
-    ])) as BlockHubToken;
+    ])) as SimpleERC20Token;
 
     dai = (await deployContract(
       <Wallet>signers[0],
@@ -51,7 +51,7 @@ describe('SmartWalletManager', () => {
     });
 
     it('deploy ERC-20 token with a proper contract address', async () => {
-      expect(blockHubToken.address).to.properAddress;
+      expect(simpleERC20Token.address).to.properAddress;
     });
 
     it('deploy DAI token with a proper contract address', async () => {
@@ -157,8 +157,8 @@ describe('SmartWalletManager', () => {
 
     it('fund a smart-wallet with ERC-20 token', async () => {
       const amountToSend = 10000;
-      await blockHubToken.transfer(smartWalletAddress, amountToSend);
-      const walletToBalance = await blockHubToken.balanceOf(smartWalletAddress);
+      await simpleERC20Token.transfer(smartWalletAddress, amountToSend);
+      const walletToBalance = await simpleERC20Token.balanceOf(smartWalletAddress);
       expect(walletToBalance.toNumber()).to.equal(amountToSend);
     });
 
@@ -169,14 +169,14 @@ describe('SmartWalletManager', () => {
         smartWalletAddress,
       );
       await userSmartWallet.transferERC20token(
-        blockHubToken.address,
+        simpleERC20Token.address,
         await signers[1].getAddress(),
         amountToSend,
       );
-      expect((await blockHubToken.balanceOf(await signers[1].getAddress())).toNumber()).to.equal(
+      expect((await simpleERC20Token.balanceOf(await signers[1].getAddress())).toNumber()).to.equal(
         amountToSend,
       );
-      expect((await blockHubToken.balanceOf(smartWalletAddress)).toNumber()).to.equal(0);
+      expect((await simpleERC20Token.balanceOf(smartWalletAddress)).toNumber()).to.equal(0);
     });
 
     it(`can not send ERC-20 token the smart-wallet doesn't have or doesn't exist`, async () => {
