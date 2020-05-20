@@ -26,6 +26,10 @@ And run only once `npm run compile_dai` to compile the DAI smart-contract.
 
 Note: As is, the tests fail on purpose. This is to show the Solidity stack traces that Buidler enables!
 
+To test the Aave functionalities, you must test them directly on Ropsten:
+
+`npx buidler run --network ropsten ./scripts/aave_liquidity.test.ts`
+
 ### Run Coverage Report for Tests
 
 `npm run coverage`
@@ -36,11 +40,11 @@ Note: The branch coverage is 75 %.
 
 Create/modify network config in `buidler.config.ts` and add API key and private key, then run:
 
-`npx buidler run --network rinkeby scripts/deploy.ts`
+`npx buidler run --network ropsten scripts/deploy.ts`
 
 Do the same inside the file `buidler.config.dai.ts` if you want to have a test contract for DAI and run:
 
-`npx buidler run --network rinkeby scripts/deploy_dai.ts`
+`npx buidler run --network ropsten scripts/deploy_dai.ts`
 
 ### Verify on Etherscan
 
