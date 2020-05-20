@@ -5,6 +5,8 @@ const db = admin.getFirestore();
 
 export enum TxType {
   WalletCreation = 'wallet_creation',
+  Deposit = 'deposit',
+  Withdraw = 'withdraw',
 }
 
 export enum TxStatus {
@@ -17,6 +19,7 @@ export enum WalletStatus {
   None = 'none',
   Active = 'active',
   Inactive = 'inactive',
+  Pending = 'pending',
   PendingCreation = 'pending_creation',
 }
 
@@ -51,7 +54,7 @@ export const users = ((_db) => {
     async findOrCreate({ id, username }) {
       const user = await users.findById(id);
 
-      if (undefined === user) {
+      if (!user) {
         await users.create({
           id,
           username,
@@ -81,7 +84,10 @@ export const users = ((_db) => {
 
 export const txs = ((_db) => {
   return {
-    create(hash, uid, type, status) {
+    create(hash: string, status: string, _type?: string, _uid?: string) {
+      const type = _type ?? '';
+      const uid = _uid ?? '';
+
       return _db.collection('transactions').doc(hash).set({
         hash,
         uid,
@@ -100,6 +106,18 @@ export const txs = ((_db) => {
       }
 
       return querySnapshot.docs[0].data();
+    },
+
+    async findByUid(uid: string) {
+      const txsRef = _db.collection('transactions');
+      const query = txsRef.where('uid', '==', uid);
+
+      const querySnapshot = await query.get();
+      if (querySnapshot.empty) {
+        return;
+      }
+
+      return querySnapshot;
     },
 
     async update(updatedTx) {

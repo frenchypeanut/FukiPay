@@ -1,23 +1,28 @@
 import * as functions from 'firebase-functions';
-import Telegraf, { Context } from 'telegraf';
+import Telegraf, { Context, session } from 'telegraf';
 import setupCatchAll from './commands/catchAll';
+import setupCatchNumber from './commands/catchNumber';
 import setupMainMenu from './commands/mainMenu';
 import setupCreateWallet from './commands/createWallet';
 import setupStart from './commands/start';
 import setupBalance from './commands/balance';
 import setupReceive from './commands/receive';
+import setupTransactions from './commands/transactions';
 import notificationHandler from './ethereum/notificationHandler';
 import { BOT_TOKEN } from './config';
 
 const bot: Telegraf<Context> = new Telegraf(BOT_TOKEN);
+bot.use(session());
 
 setupCreateWallet(bot);
 setupBalance(bot);
 setupReceive(bot);
+setupTransactions(bot);
 setupStart(bot);
 setupMainMenu(bot);
 
 // catch all
+setupCatchNumber(bot);
 setupCatchAll(bot);
 
 /**

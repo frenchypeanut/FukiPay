@@ -8,7 +8,9 @@ export default function setupCreateWallet(bot: Telegraf<Context>) {
     const user = await users.findById(id);
 
     if (user.wallet_status !== WalletStatus.None) {
-      return ctx.reply('You already have a wallet, or it is in the process of being created.');
+      return ctx.reply(
+        'You already have a wallet, or maybe it is in the process of being created?',
+      );
     }
 
     const tx = await smartWallet.create(`${user.uid}`);
@@ -16,10 +18,10 @@ export default function setupCreateWallet(bot: Telegraf<Context>) {
 
     const promises = [
       users.update(user),
-      txs.create(tx.hash, user.uid, TxType.WalletCreation, TxStatus.Injected),
+      txs.create(tx.hash, TxStatus.Injected, TxType.WalletCreation, user.uid),
     ];
     await Promise.all(promises);
 
-    return ctx.reply('🎉 Wallet creation in progress. Wait a few moment and tap "Main Menu".');
+    return ctx.reply('Thank you, you will be notified when your wallet is ready.');
   });
 }
