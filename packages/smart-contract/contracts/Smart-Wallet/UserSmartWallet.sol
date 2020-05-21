@@ -60,7 +60,6 @@ interface pTokens {
 
 contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer {
     using SafeMath for uint256;
-    address public owner;
     string public uid;
     uint256 public userBalance;
     address public userBackupKey;
@@ -68,13 +67,51 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
 
     SmartWalletManager private smartWalletManager;
 
+    // To-do: uint constant public MAX_OWNER_COUNT = 10;
+    // uint256 public ownersCount = 0;
+    mapping (address => bool) public hasOwnerAccess;
+
+    modifier onlyOwner() {
+        require(hasOwnerAccess[msg.sender] == true, 'Caller must be the owner.');
+        _;
+    }
+
     constructor(string memory _uid) public {
         smartWalletManager = SmartWalletManager(msg.sender);
-        owner = smartWalletManager.owner();
+        // To-do: ownersCount = ownersCount.add(1);
+        hasOwnerAccess[smartWalletManager.owner()] = true;
         require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         uid = _uid;
         activated = true;
         userBalance = 0;
+    }
+
+    // function verifyOwnerAccess(address _address) public view returns(bool) {
+    //     return hasOwnerAccess[_address];
+    // }
+
+    /** @dev Add a new owner address inside the smart-wallet.
+     */
+    function addOwner(address _newOwner) public onlyOwner returns(bool) {
+        require(_newOwner != address(0), 'Cannot use zero address.');
+        // To-do: require(ownersCount <= MAX_OWNER_COUNT);
+        require(!hasOwnerAccess[_newOwner], 'Address already registered as owner.');
+        // To-do: add vote for approval from all current owners
+        // ownersCount = ownersCount.add(1);
+        hasOwnerAccess[_newOwner] = true;
+        return true;
+    }
+
+    /** @dev Remove a current owner address inside the smart-wallet.
+     */
+    function removeOwner(address _ownerToRemove) public onlyOwner returns(bool) {
+        require(msg.sender != smartWalletManager.owner(), 'The SmartWalletManager should not remove owners.');
+        require(_ownerToRemove != address(0), 'Cannot use zero address.');
+        require(hasOwnerAccess[_ownerToRemove], 'Address is not currently registered as an owner.');
+        // To-do: add vote for approval from all current owners
+        // ownersCount = ownersCount.sub(1);
+        hasOwnerAccess[_ownerToRemove] = false;
+        return true;
     }
 
     /** @dev Process the deposit of funds when sent to this contract.
@@ -94,8 +131,7 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
 
     /** @dev Transfer ETH
      */
-    function transferETH(address payable recipient, uint256 _amount) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function transferETH(address payable recipient, uint256 _amount) public onlyOwner {
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(address(this).balance >= _amount, 'Insufficient balance inside the smart-wallet.');
         require(userBalance >= _amount, 'Insufficient balance inside the smart-wallet.');
@@ -105,8 +141,7 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
 
     /** @dev Transfer DAI
      */
-    function transferDAItoken(address tokenAddress, address recipient, uint256 _amount) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function transferDAItoken(address tokenAddress, address recipient, uint256 _amount) public onlyOwner {
         require(tokenAddress != address(0), 'Cannot use zero address.');
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(
@@ -114,13 +149,11 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
             'Insufficient balance inside the smart-wallet'
         );
         DaiToken(tokenAddress).transfer(recipient, _amount);
-        // emit TransferredDAItoken(recipient, _amount);
     }
 
     /** @dev Transfer ERC20 token
      */
-    function transferERC20token(address tokenAddress, address recipient, uint256 _amount) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function transferERC20token(address tokenAddress, address recipient, uint256 _amount) public onlyOwner {
         require(tokenAddress != address(0), 'Cannot use zero address.');
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(
@@ -128,13 +161,11 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
             'Insufficient balance inside the smart-wallet'
         );
         Token(tokenAddress).transfer(recipient, _amount);
-        // emit TransferredERC20token(recipient, _amount);
     }
 
     /** @dev Deposit ERC-20 tokens inside Aave liquidity pools and get aTokens in return
      */
-    function depositFundsAave(address tokenAddress, uint256 _amount) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function depositFundsAave(address tokenAddress, uint256 _amount) public onlyOwner {
         require(tokenAddress != address(0), 'Cannot use zero address.');
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(
@@ -155,8 +186,7 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
 
     /** @dev Deposit ERC-20 tokens inside Aave liquidity pools and get aTokens in return
      */
-    function redeemAaveToken(address aTokenAddress, uint256 _amount) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function redeemAaveToken(address aTokenAddress, uint256 _amount) public onlyOwner {
         require(aTokenAddress != address(0), 'Cannot use zero address.');
         require(_amount > 0, 'Cannot send empty or negative amount.');
         require(
@@ -179,22 +209,19 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
 
     /** @dev Boolean to administer receiver hook for ERC-777
      */
-    function setShouldRevertReceive(bool shouldRevert) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function setShouldRevertReceive(bool shouldRevert) public onlyOwner {
         _shouldRevertReceive = shouldRevert;
     }
 
     /** @dev Boolean to administer sending hook for ERC-777
      */
-    function setShouldRevertSend(bool shouldRevertSend) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function setShouldRevertSend(bool shouldRevertSend) public onlyOwner {
         _shouldRevertSend = shouldRevertSend;
     }
 
     /** @dev ERC-1820 interface register
      */
-    function setERC1820(address ptokenAddress) public {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    function setERC1820(address ptokenAddress) public onlyOwner {
         _ptoken = IERC777(ptokenAddress);
         _erc1820.setInterfaceImplementer(
             address(this),
@@ -249,8 +276,7 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
         uint256 amount,
         bytes calldata userData,
         bytes calldata operatorData
-    ) external override {
-        require(msg.sender == owner, 'Only the owner can access this function.');
+    ) external override onlyOwner {
         if (_shouldRevertSend) {
             revert();
         }
@@ -262,9 +288,9 @@ contract UserSmartWallet is IERC777Recipient, IERC777Sender, ERC1820Implementer 
      */
     function swappBTCtoBTC(address _pTokens, uint256 _amount, string memory _BTCRecipientAddress)
         public
+        onlyOwner
         returns (bool)
     {
-        require(msg.sender == owner, 'Only the owner can access this function.');
         // minimum amount that can be pegged-out from pBTC network:
         // 0.00005 pBTC with 18 decimals
         // require(_amount >= 50000000000000, 'Impossible to swap less than 0.00005 pBTC');

@@ -6,11 +6,16 @@ import './UserSmartWallet.sol';
 contract SmartWalletManager {
     event CreatedAccount(string _uid, address _userAccountAddress);
     event FundedAccount(string _uid, address _fromAddress, uint256 _amount);
-    event SpendFunds(uint256 _amount, address _toAddress);
+    // event SpendFunds(uint256 _amount, address _toAddress);
 
     address public owner;
 
     mapping(string => address) userSmartWallets; // Map of uids to their user-account
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, 'Caller must be the owner.');
+        _;
+    }
 
     constructor() public {
         owner = msg.sender;
@@ -21,8 +26,7 @@ contract SmartWalletManager {
      * @param _uid unique identifier of the smart-wallet owner.
      * @return boolean The confirmation of the smart-wallet creation.
      */
-    function createWallet(string calldata _uid) external returns (bool) {
-        require(owner == msg.sender, 'Caller must be the owner.');
+    function createWallet(string calldata _uid) external onlyOwner returns (bool) {
         require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         require(userSmartWallets[_uid] == address(0), 'The uid already has a wallet.');
         userSmartWallets[_uid] = address(new UserSmartWallet(_uid)); // DAI Ropsten: address(0xf80A32A835F79D7787E8a8ee5721D0fEaFd78108)
@@ -35,8 +39,7 @@ contract SmartWalletManager {
      * @param _uid unique identifier of the smart-wallet owner.
      * @return address The address of the smart-wallet.
      */
-    function getWalletAddress(string memory _uid) public view returns (address) {
-        require(msg.sender == owner, 'You must be the owner of the contract.');
+    function getWalletAddress(string memory _uid) public view onlyOwner returns (address) {
         require(bytes(_uid).length > 0, 'The uid cannot be empty.');
         return userSmartWallets[_uid];
     }

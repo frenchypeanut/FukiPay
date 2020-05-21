@@ -1,5 +1,5 @@
 import { ethers } from '@nomiclabs/buidler';
-import { Signer, Wallet } from 'ethers';
+import { Signer, Wallet, constants } from 'ethers';
 import chai from 'chai';
 import { deployContract, solidity } from 'ethereum-waffle';
 import SmartWalletManagerArtifact from '../artifacts/SmartWalletManager.json';
@@ -14,7 +14,8 @@ import { Dai } from '../typechain/Dai';
 
 chai.use(solidity);
 const { expect } = chai;
-const ZERO = '0x0000000000000000000000000000000000000000';
+const ZERO = constants.AddressZero;
+let smartWalletAddress = ZERO;
 
 describe('SmartWalletManager', () => {
   let signers: Signer[];
@@ -66,7 +67,6 @@ describe('SmartWalletManager', () => {
 
   describe('Smart-wallet', async () => {
     const UID = '123456789';
-    let smartWalletAddress = ZERO;
     const amountToFund = '1';
 
     it('create a smart-wallet', async () => {
@@ -87,8 +87,7 @@ describe('SmartWalletManager', () => {
         UserSmartWalletArtifact.abi,
         smartWalletAddress,
       );
-      // WIP before: expect(await userSmartWallet.owner()).to.eq(await smartWalletManager.address);
-      expect(await userSmartWallet.owner()).to.eq(await signers[0].getAddress());
+      expect(await userSmartWallet.hasOwnerAccess(await signers[0].getAddress())).to.be.true;
       expect((await userSmartWallet.getBalance()).toString()).to.eq(
         await ethers.utils.parseEther(amountToFund),
       );
@@ -136,7 +135,7 @@ describe('SmartWalletManager', () => {
       const nonAdminUserSmartWallet = userSmartWallet.connect(<Wallet>signers[1]);
       await expect(
         nonAdminUserSmartWallet.transferETH(await signers[1].getAddress(), amountToSend),
-      ).to.be.revertedWith('Only the owner can access this function.');
+      ).to.be.revertedWith('Caller must be the owner.');
     });
 
     it('can not create a smart-wallet to the same user twice', async () => {
@@ -212,6 +211,52 @@ describe('SmartWalletManager', () => {
         amountToSend,
       );
       expect((await dai.balanceOf(smartWalletAddress)).toNumber()).to.equal(0);
+    });
+  });
+  describe('Owners', async () => {
+    it('add a new owner', async () => {
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
+      expect(await userSmartWallet.hasOwnerAccess(await signers[1].getAddress())).to.be.false;
+      await userSmartWallet.addOwner(await signers[1].getAddress());
+      expect(await userSmartWallet.hasOwnerAccess(await signers[1].getAddress())).to.be.true;
+    });
+
+    it('can not add a new owner if registerer is not an owner', async () => {
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
+      expect(await userSmartWallet.hasOwnerAccess(await signers[2].getAddress())).to.be.false;
+      const nonAdminUserSmartWallet = userSmartWallet.connect(<Wallet>signers[2]);
+      await expect(
+        nonAdminUserSmartWallet.addOwner(await signers[2].getAddress()),
+      ).to.be.revertedWith('Caller must be the owner.');
+    });
+
+    it('can not remove an owner if owner of the smartwallet manager is calling', async () => {
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
+      await expect(userSmartWallet.removeOwner(await signers[1].getAddress())).to.be.revertedWith(
+        'The SmartWalletManager should not remove owners.',
+      );
+    });
+
+    it('smart-wallet user can remove telegram ownership properly', async () => {
+      const userSmartWallet = await ethers.getContractAt(
+        UserSmartWalletArtifact.abi,
+        smartWalletAddress,
+      );
+      const nonAdminUserSmartWallet = userSmartWallet.connect(<Wallet>signers[1]);
+      expect(await nonAdminUserSmartWallet.hasOwnerAccess(await signers[0].getAddress())).to.be
+        .true;
+      await nonAdminUserSmartWallet.removeOwner(await signers[0].getAddress());
+      expect(await nonAdminUserSmartWallet.hasOwnerAccess(await signers[0].getAddress())).to.be
+        .false;
     });
   });
 });
