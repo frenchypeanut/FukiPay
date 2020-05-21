@@ -42,6 +42,10 @@ firebase functions:config:set network.eth="..."
 firebase functions:config:set owner.pk="..."
 ```
 
+Then deploy the config with `firebase deploy --only functions`  
+Then set your webhook with `curl -s -F "url=<firebase-url>tgWebhook" https://api.telegram.org/botxxx/setWebHook`  
+Eventually, set your blocknative webhook pointing to the `bnWebhook` function.
+
 ### Functions Dev
 
 You need to login to firebase to be able to run functions locally.  

@@ -7,7 +7,6 @@ web-start web-test
 SHELL := /bin/bash
 
 TG = scripts/tg.sh
-WATCH = scripts/watch.sh
 NPM = npm --prefix
 PACKAGE_BOT = packages/bot
 PACKAGE_CONTRACT = packages/smart-contract

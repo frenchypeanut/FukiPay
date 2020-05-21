@@ -14,12 +14,16 @@ export default function setupMainMenu(bot: Telegraf<Context>) {
         ),
       );
     } else {
+      const walletStatus =
+        user.wallet_status === WalletStatus.Active ? 'ready to go 🚀' : 'being created..';
+
       return ctx.reply(
-        `@${user.username} you wallet is ready to go 🚀 (address: ${user.wallet_address})`,
+        `@${user.username} you wallet is ${walletStatus}`,
         Extra.HTML().markup((m) =>
           m.inlineKeyboard([
             m.callbackButton('Receive', 'receive'),
             m.callbackButton('Balance', 'balance'),
+            m.callbackButton('Transactions', 'transactions'),
           ]),
         ),
       );
