@@ -10,12 +10,12 @@ docs=$(curl -sS -H "Accept: application/json" -H "Content-Type: application/json
 if [[ ${#docs} == 3 ]]; then
   echo "no documents to delete"
 else
-  docs=$(jq '.documents[].name' <<< ${docs})
+  docs=$(jq '.documents[].name' <<< "${docs}")
 
   c=0
   for doc in ${docs}
   do
-    curl -X DELETE ${FIRESTORE_BASE_URL}${doc:1:-1} > /dev/null
+    curl -X DELETE "${FIRESTORE_BASE_URL}${doc:1:-1}" > /dev/null
     ((c=c + 1))
   done
   echo "${c} documents deleted"
