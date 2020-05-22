@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import Telegraf, { Context, session } from 'telegraf';
+import setup2fa from './commands/2fa';
 import setupCatchAll from './commands/catchAll';
 import setupCatchNumber from './commands/catchNumber';
 import setupMainMenu from './commands/mainMenu';
@@ -14,6 +15,7 @@ import { BOT_TOKEN } from './config';
 const bot: Telegraf<Context> = new Telegraf(BOT_TOKEN);
 bot.use(session());
 
+setup2fa(bot);
 setupCreateWallet(bot);
 setupBalance(bot);
 setupReceive(bot);
