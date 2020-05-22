@@ -73,6 +73,8 @@ export const users = ((_db) => {
         id,
         wallet_status,
         uid,
+        secret_2fa: null,
+        is_2fa_active: false,
       });
     },
 
