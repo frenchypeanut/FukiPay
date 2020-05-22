@@ -16,8 +16,7 @@ const pbtc = new pBTC(configs);
 
 export default function setupReceive(bot: Telegraf<Context>) {
   bot.action('receive', async (ctx) => {
-    const id: number = ctx.from?.id!;
-    const user = await users.findById(id);
+    const user = await users.findById(ctx.from?.id!);
 
     if (!user.wallet_address) {
       return ctx.reply(
@@ -59,8 +58,7 @@ export default function setupReceive(bot: Telegraf<Context>) {
   });
 
   bot.action('receive_ETH_QRCode', async (ctx) => {
-    const id: number = ctx.from?.id!;
-    const user = await users.findById(id);
+    const user = await users.findById(ctx.from?.id!);
     const amount = ctx['session'].amount;
 
     delete ctx['session'].action;
@@ -74,7 +72,7 @@ export default function setupReceive(bot: Telegraf<Context>) {
     const qrcode: string = await QRCode.toDataURL(link);
 
     await ctx.reply(
-      `"Your ETH address is ${user.wallet_address}\nUse the QR Code bellow to receive a deposit${
+      `Your ETH address is ${user.wallet_address}\nUse the QR Code below to receive a deposit${
         amount ? ' of ' + amount + constants.EtherSymbol : ''
       }! `,
     );
@@ -132,7 +130,7 @@ export default function setupReceive(bot: Telegraf<Context>) {
     }
 
     await ctx.reply(
-      `Your BTC address is ${user.pBTC_address}\nUse the QR Code bellow to receive a deposit${
+      `Your BTC address is ${user.pBTC_address}\nUse the QR Code below to receive a deposit${
         amount ? ' of ' + amount + '₿' : ''
       }! `,
     );

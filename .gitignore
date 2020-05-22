@@ -16,6 +16,7 @@ node_modules
 npm-debug.log*
 firebase-debug.log
 firestore-debug.log
+ui-debug.log
 
 # Bot
 /packages/bot/lib

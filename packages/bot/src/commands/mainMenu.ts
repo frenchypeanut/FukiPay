@@ -3,8 +3,7 @@ import { users, WalletStatus } from '../db';
 
 export default function setupMainMenu(bot: Telegraf<Context>) {
   bot.hears('Main Menu', async (ctx) => {
-    const from: any = ctx.from;
-    const user = await users.findById(from.id);
+    const user = await users.findById(ctx.from?.id!);
 
     if (user.wallet_status === WalletStatus.None) {
       return ctx.reply(

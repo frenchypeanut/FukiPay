@@ -6,3 +6,4 @@ export const NETWORK_BTC = functions.config().network.btc;
 export const NETWORK_ETH = functions.config().network.eth;
 export const CONTRACT_ADDRESS = functions.config().contract.address;
 export const OWNER_PK = functions.config().owner.pk;
+export const OTP_SERVICE = functions.config().otp.service;
