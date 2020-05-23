@@ -1,27 +1,28 @@
 import functions from 'firebase-functions-test';
-import { constants} from 'ethers';
+import { constants } from 'ethers';
 
 const testEnv = functions();
 testEnv.mockConfig({
-  "network": {
-    "btc": "",
-    "eth": "ropsten"
+  network: {
+    btc: '',
+    eth: 'ropsten',
   },
-  "owner": {
-    "pk": "0xed930afbfc45260c53590fb5b48bb1892f7e35bcde05d9c743c778c99ecf0380"
+  owner: {
+    pk: '0xed930afbfc45260c53590fb5b48bb1892f7e35bcde05d9c743c778c99ecf0380',
   },
-  "infura": {
-    "apikey": "test"
+  infura: {
+    apikey: 'test',
   },
-  "contract": {
-    "address": constants.AddressZero
+  contract_address: {
+    manager: constants.AddressZero,
+    dai: constants.AddressZero,
   },
-  "bot": {
-    "token": ""
+  bot: {
+    token: '',
   },
-  "service": {
-    "name": ""
-  }
+  service: {
+    name: '',
+  },
 });
 
 const { tgWebhook } = require('./index');
