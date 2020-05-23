@@ -1,15 +1,43 @@
 import Telegraf, { Context } from 'telegraf';
+import { authenticator } from 'otplib';
+import QRCode from 'qrcode';
 import { users, txs, TxStatus, TxType, WalletStatus } from '../db';
 import smartWallet from '../ethereum/smart-wallet';
+import { OTP_SERVICE } from '../config';
 
 export default function setupCreateWallet(bot: Telegraf<Context>) {
   bot.action('create_wallet', async (ctx) => {
-    const id: number = ctx.from?.id!;
-    const user = await users.findById(id);
+    const user = await users.findById(ctx.from?.id!);
 
     if (user.wallet_status !== WalletStatus.None) {
       return ctx.reply(
         'You already have a wallet, or maybe it is in the process of being created?',
+      );
+    }
+
+    if (!user.is_2fa_active) {
+      let secret;
+      if (ctx['session'].current_action && ctx['session'].current_action === 'wallet_creation') {
+        secret = ctx['session'].secret;
+      } else {
+        secret = authenticator.generateSecret();
+        ctx['session'].current_action = 'wallet_creation';
+        ctx['session'].secret = secret;
+      }
+
+      const { uid } = user;
+      const otpauth = authenticator.keyuri(uid, OTP_SERVICE, secret);
+      const qrcode = await QRCode.toDataURL(otpauth);
+
+      return ctx.replyWithPhoto(
+        { source: Buffer.from(qrcode.substring(22), 'base64') },
+        {
+          caption: `Before creating your wallet, Let's setup your 2FA,
+I'll ask you your secret code anytime you want to move you funds around.
+secret: ${secret}
+service: ${OTP_SERVICE}
+Type your secret when you are ready`,
+        },
       );
     }
 
@@ -23,5 +51,27 @@ export default function setupCreateWallet(bot: Telegraf<Context>) {
     await Promise.all(promises);
 
     return ctx.reply('Thank you, you will be notified when your wallet is ready.');
+  });
+
+  bot.hears(/\d{6}/, async (ctx) => {
+    if (ctx['session'].current_action !== 'wallet_creation' || !ctx['session'].secret) {
+      return ctx.reply("Sorry, I can't do it, something got wrong");
+    }
+
+    const user = await users.findById(ctx.from?.id!);
+    const secret = ctx['session'].secret;
+    const isValid = authenticator.check(ctx.message?.text!, secret);
+
+    if (isValid) {
+      user.is_2fa_active = true;
+      await users.update(user);
+
+      delete ctx['session'].current_action;
+      delete ctx['session'].secret;
+
+      return ctx.reply('Noice, your 2fa is now activate');
+    } else {
+      return ctx.reply('Wut, your token not corresponding with secret, retry !');
+    }
   });
 }

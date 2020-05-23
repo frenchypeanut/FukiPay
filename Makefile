@@ -50,6 +50,7 @@ bot-config: ## to override firebase config
 	$(call set_json_key,.runtimeconfig.json,.bot.token,$$BOT_TOKEN) && \
 	$(call set_json_key,.runtimeconfig.json,.contract.address,$$CONTRACT_ADDRESS) && \
 	$(call set_json_key,.runtimeconfig.json,.infura.apikey,$$INFURA_API_KEY) && \
+	$(call set_json_key,.runtimeconfig.json,.otp.service,$$OTP_SERVICE) && \
 	$(call set_json_key,.runtimeconfig.json,.owner.pk,$$OWNER_PK) && \
 	$(call set_json_key,.runtimeconfig.json,.network.eth,$$NETWORK_ETH) && \
 	$(call set_json_key,.runtimeconfig.json,.network.btc,$$NETWORK_BTC)
@@ -61,8 +62,8 @@ bot-db-reset: ## to reset the db
 	@scripts/firestore-reset.sh
 
 bot-install: ## to install dependencies
+	@if [ ! -f $(PACKAGE_BOT)/src/artifacts -a -d $(PACKAGE_CONTRACT)/artifacts ]; then ln -s $(PWD)/$(PACKAGE_CONTRACT)/artifacts $(PACKAGE_BOT)/src/artifacts; fi
 	@$(NPM) $(PACKAGE_BOT) i
-	@cd $(PACKAGE_BOT)/src && ln -s ../../smart-contract/artifacts artifacts
 
 bot-run: ## to start the local server
 	@$(MAKE) bot-check
