@@ -70,6 +70,7 @@ bot-deploy: ## to deploy the bot (use it to deploy new config)
 	@firebase deploy --only functions
 	@rm -rf $(PACKAGE_BOT)/src/artifacts
 	$(MAKE) link-artifacts
+	$(MAKE) bot-config
 
 bot-install: ## to install dependencies
 	@$(NPM) $(PACKAGE_BOT) i

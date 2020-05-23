@@ -1,5 +1,6 @@
-import { Contract, Wallet } from 'ethers';
+import { Contract, utils, Wallet } from 'ethers';
 import { abi as managerABI } from '../artifacts/SmartWalletManager.json';
+import { abi as walletABI } from '../artifacts/UserSmartWallet.json';
 import { abi as daiABI } from '../artifacts/Dai.json';
 import provider from './provider';
 import { CONTRACT_ADDRESS_MANAGER, CONTRACT_ADDRESS_DAI, OWNER_PK } from '../config';
@@ -23,11 +24,38 @@ const smartWallet = ((): any => {
 
       return provider.getBalance(address);
     },
+
+    async send(uid: string, to: string, _amount: number, token: string) {
+      const address = await smartWallet.getAddress(uid);
+      const contract = new Contract(address, walletABI, wallet);
+
+      switch (token) {
+        case 'ETH': {
+          const amount = utils.parseEther(`${_amount}`);
+
+          return contract.transferETH(to, amount);
+        }
+        case 'DAI': {
+          return contract.transferDAItoken(CONTRACT_ADDRESS_DAI, to, _amount);
+        }
+      }
+    },
+
     async getBalanceDai(uid: string) {
       const address = await smartWallet.getAddress(uid);
       const dai = await daiContract.balanceOf(address);
 
       return dai.toString() / 1e18;
+    },
+
+    async depositDaiAave(uid: string, amount: number) {
+      const address = await smartWallet.getAddress(uid);
+      const contract = new Contract(address, walletABI, wallet);
+      const tx = await contract.depositFundsAave(CONTRACT_ADDRESS_DAI, amount, {
+        gasLimit: 1000000,
+        gasPrice: utils.parseUnits('9.0', 'gwei'),
+      });
+      console.log(tx);
     },
   };
 })();

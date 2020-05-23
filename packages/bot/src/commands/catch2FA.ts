@@ -3,7 +3,7 @@ import { Context, Telegraf } from 'telegraf';
 import { users } from '../db';
 
 export default function setupcatch2FA(bot: Telegraf<Context>) {
-  bot.hears(/\d{6}/, async (ctx) => {
+  bot.hears(/^\d{6}$/, async (ctx) => {
     if (ctx['session'].current_action !== 'wallet_creation' && !ctx['session'].secret) {
       return ctx.reply("Sorry, I can't do it, something got wrong");
     }
