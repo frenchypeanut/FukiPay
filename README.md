@@ -102,7 +102,7 @@ See makefile for available targets.
 
 https://yeoman.io/contributing/testing-guidelines.html  
 https://blog.pusher.com/promises-async-await/  
-https://github.com/ryanmcdermott/clean-code-javascriptextranettus
+https://github.com/ryanmcdermott/clean-code-javascript
 
 ### Ethereum
 

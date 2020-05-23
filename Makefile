@@ -73,7 +73,6 @@ bot-deploy: ## to deploy the bot (use it to deploy new config)
 bot-install: ## to install dependencies
 	@$(NPM) $(PACKAGE_BOT) i
 
-
 bot-run: ## to start the local server
 	@$(MAKE) bot-check
 	@$(NPM) $(PACKAGE_BOT) run build
