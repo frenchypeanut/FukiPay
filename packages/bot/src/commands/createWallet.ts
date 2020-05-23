@@ -3,7 +3,7 @@ import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import { users, txs, TxStatus, TxType, WalletStatus } from '../db';
 import smartWallet from '../ethereum/smart-wallet';
-import { OTP_SERVICE } from '../config';
+import { SERVICE_NAME } from '../config';
 
 export default function setupCreateWallet(bot: Telegraf<Context>) {
   bot.action('create_wallet', async (ctx) => {
@@ -26,7 +26,7 @@ export default function setupCreateWallet(bot: Telegraf<Context>) {
       }
 
       const { uid } = user;
-      const otpauth = authenticator.keyuri(uid, OTP_SERVICE, secret);
+      const otpauth = authenticator.keyuri(uid, SERVICE_NAME, secret);
       const qrcode = await QRCode.toDataURL(otpauth);
 
       return ctx.replyWithPhoto(
@@ -35,7 +35,7 @@ export default function setupCreateWallet(bot: Telegraf<Context>) {
           caption: `Before creating your wallet, Let's setup your 2FA,
 I'll ask you your secret code anytime you want to move you funds around.
 secret: ${secret}
-service: ${OTP_SERVICE}
+service: ${SERVICE_NAME}
 Type your secret when you are ready`,
         },
       );
