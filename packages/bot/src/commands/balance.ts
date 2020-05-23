@@ -11,8 +11,10 @@ export default function setupBalance(bot: Telegraf<Context>) {
       return ctx.reply('Wallet not yet created');
     }
 
-    const balance = await smartWallet.getWalletBalance(user.uid);
+    let eth = await smartWallet.getBalance(user.uid);
+    eth = utils.formatEther(eth);
+    const dai = await smartWallet.getBalanceDai(user.uid);
 
-    return ctx.reply(utils.formatEther(balance) + constants.EtherSymbol);
+    return ctx.reply(`${eth} ${constants.EtherSymbol}\n${dai} DAI`);
   });
 }

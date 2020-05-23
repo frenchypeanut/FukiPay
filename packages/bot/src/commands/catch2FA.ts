@@ -14,7 +14,7 @@ export default function setupcatch2FA(bot: Telegraf<Context>) {
 
     if (isValid) {
       user.is_2fa_active = true;
-      user.secret_2_fa = secret;
+      user.secret_2fa = secret;
       await users.update(user);
 
       delete ctx['session'].current_action;

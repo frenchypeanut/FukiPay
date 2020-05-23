@@ -32,11 +32,7 @@ export default function setupCreateWallet(bot: Telegraf<Context>) {
       return ctx.replyWithPhoto(
         { source: Buffer.from(qrcode.substring(22), 'base64') },
         {
-          caption: `Before creating your wallet, Let's setup your 2FA,
-I'll ask you your secret code anytime you want to move you funds around.
-secret: ${secret}
-service: ${SERVICE_NAME}
-Type your secret when you are ready`,
+          caption: `I'll ask you your secret code anytime you want to move you funds around.\nsecret: ${secret}\nservice: ${SERVICE_NAME}\nType your obtained code when you are ready`,
         },
       );
     }
