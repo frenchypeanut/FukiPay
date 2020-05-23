@@ -50,7 +50,8 @@ bot-config: ## to override firebase config
 	@firebase functions:config:get > .runtimeconfig.json
 	@$(call read_env) && \
 	$(call set_json_key,.runtimeconfig.json,.bot.token,$$BOT_TOKEN) && \
-	$(call set_json_key,.runtimeconfig.json,.contract.address,$$CONTRACT_ADDRESS) && \
+	$(call set_json_key,.runtimeconfig.json,.contract_address.manager,$$CONTRACT_ADDRESS_MANAGER) && \
+	$(call set_json_key,.runtimeconfig.json,.contract_address.dai,$$CONTRACT_ADDRESS_DAI) && \
 	$(call set_json_key,.runtimeconfig.json,.infura.apikey,$$INFURA_API_KEY) && \
 	$(call set_json_key,.runtimeconfig.json,.service.name,$$SERVICE_NAME) && \
 	$(call set_json_key,.runtimeconfig.json,.owner.pk,$$OWNER_PK) && \
