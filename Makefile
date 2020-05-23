@@ -1,8 +1,8 @@
 .PHONY: bot-check bot-config bot-db-reset bot-install bot-run \
 bot-run-watch bot-test contract-build contract-deploy contract-install \
-contract-test-coverage contract-test help tg-cleanup tg-updates \
-tg-webhook-delete tg-webhook-info tg-webhook web-build web-install \
-web-start web-test
+contract-test-coverage contract-test help link-artifacts tg-cleanup \
+tg-updates tg-webhook-delete tg-webhook-info tg-webhook web-build \
+web-install web-start web-test
 
 SHELL := /bin/bash
 
@@ -40,6 +40,8 @@ install: # to install all dependencies
 	@$(MAKE) web-install
 	@npm i
 
+link-artifacts: ## to link the artifacts
+	@if [ ! -f $(PACKAGE_BOT)/src/artifacts -a -d $(PACKAGE_CONTRACT)/artifacts ]; then ln -s $(PWD)/$(PACKAGE_CONTRACT)/artifacts $(PACKAGE_BOT)/src/artifacts; fi
 
 #######################################
 #               BOT                   #
@@ -66,14 +68,11 @@ bot-deploy: ## to deploy the bot (use it to deploy new config)
 	@rm -rf $(PACKAGE_BOT)/src/artifacts && cp -r $(PACKAGE_CONTRACT)/artifacts $(PACKAGE_BOT)/src/artifacts
 	@firebase deploy --only functions
 	@rm -rf $(PACKAGE_BOT)/src/artifacts
-	$(MAKE) bot-link-contract
+	$(MAKE) link-artifacts
 
 bot-install: ## to install dependencies
-	$(MAKE) bot-link-contract
 	@$(NPM) $(PACKAGE_BOT) i
 
-bot-link-contract: ## to create the symlink to artifacts
-	@if [ ! -f $(PACKAGE_BOT)/src/artifacts -a -d $(PACKAGE_CONTRACT)/artifacts ]; then ln -s $(PWD)/$(PACKAGE_CONTRACT)/artifacts $(PACKAGE_BOT)/src/artifacts; fi
 
 bot-run: ## to start the local server
 	@$(MAKE) bot-check

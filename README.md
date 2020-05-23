@@ -40,6 +40,7 @@ firebase functions:config:set infura.apikey="..."
 firebase functions:config:set network.btc="..."
 firebase functions:config:set network.eth="..."
 firebase functions:config:set owner.pk="..."
+firebase functions:config:set service.name="..."
 ```
 
 Then deploy the config with `firebase deploy --only functions`  
@@ -64,7 +65,7 @@ Only a few steps are necessary to install the project:
 That's it! Let's go:
 
 Build the contract with `make contract-build`
-
+Link artifacts with `make link-artifacts`  
 To launch the functions, run `make bot-run`.  
 A watcher is also available, just run `make bot-run-watch`.
 
@@ -89,12 +90,7 @@ You will also need a [blocknative](https://www.blocknative.com/) api key on whic
 
 ### Firestore Dev
 
-An emulated local firestore will be available, to see your data got to: http://localhost:8080/v1/projects/telegramdefi/databases/(default)/documents/  
-To delete some record, you can just make a curl request like this:
-
-```bash
-curl -X DELETE http://localhost:8080/v1/projects/telegramdefi/databases/(default)/documents/users/<uid>
-```
+Go to http://localhost:4000 to see emulators UI
 
 ### Contract Dev
 
