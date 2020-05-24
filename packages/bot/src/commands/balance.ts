@@ -14,7 +14,8 @@ export default function setupBalance(bot: Telegraf<Context>) {
     let eth = await smartWallet.getBalance(user.uid);
     eth = utils.formatEther(eth);
     const dai = await smartWallet.getBalanceDai(user.uid);
+    const aDai = await smartWallet.getBalanceADai(user.uid);
 
-    return ctx.reply(`${eth} ${constants.EtherSymbol}\n${dai} DAI`);
+    return ctx.reply(`${eth} ${constants.EtherSymbol}\n${dai} DAI\n${aDai} aDai`);
   });
 }

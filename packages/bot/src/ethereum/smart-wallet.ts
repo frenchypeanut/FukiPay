@@ -2,13 +2,20 @@ import { Contract, utils, Wallet } from 'ethers';
 import { abi as managerABI } from '../artifacts/SmartWalletManager.json';
 import { abi as walletABI } from '../artifacts/UserSmartWallet.json';
 import { abi as daiABI } from '../artifacts/Dai.json';
+import aTokenABI from '../ABIs/AToken.json';
 import provider from './provider';
-import { CONTRACT_ADDRESS_MANAGER, CONTRACT_ADDRESS_DAI, OWNER_PK } from '../config';
+import {
+  CONTRACT_ADDRESS_MANAGER,
+  CONTRACT_ADDRESS_DAI,
+  CONTRACT_ADDRESS_ADAI,
+  OWNER_PK,
+} from '../config';
 
 const smartWallet = ((): any => {
   const wallet = new Wallet(OWNER_PK, provider);
   const managerContract = new Contract(CONTRACT_ADDRESS_MANAGER, managerABI, wallet);
   const daiContract = new Contract(CONTRACT_ADDRESS_DAI, daiABI, wallet);
+  const aDaiContract = new Contract(CONTRACT_ADDRESS_ADAI, aTokenABI, wallet);
 
   return {
     async create(uid: string) {
@@ -46,6 +53,13 @@ const smartWallet = ((): any => {
       const dai = await daiContract.balanceOf(address);
 
       return dai.toString() / 1e18;
+    },
+
+    async getBalanceADai(uid: string) {
+      const address = await smartWallet.getAddress(uid);
+      const aDai = await aDaiContract.balanceOf(address);
+
+      return aDai.toString() / 1e18;
     },
 
     async depositDaiAave(uid: string, amount: number) {
