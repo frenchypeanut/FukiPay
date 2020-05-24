@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "lib",
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true
+  },
+  "compileOnSave": true,
+  "include": ["src/**/*.ts"]
+}

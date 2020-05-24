@@ -1,0 +1,35 @@
+name: bot
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'packages/bot/**'
+
+jobs:
+  deploy:
+    name: Test and Deploy
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: |
+          npm --prefix ./packages/smart-contract i
+          npm --prefix ./packages/bot i
+          npm --prefix ./packages/smart-contract run build
+          cd ./packages/bot/src && cp -r ../../smart-contract/artifacts artifacts
+      - name: Run tests
+        run: npm --prefix ./packages/bot run test
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions
+        env:
+          PROJECT_ID: telegramdefi
+          PROJECT_PATH: ./packages/bot
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

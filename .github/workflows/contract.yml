@@ -1,0 +1,46 @@
+name: contract
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'packages/smart-contract/**'
+
+jobs:
+  build:
+    name: Build and deploy
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        working-directory: ./packages/smart-contract
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm run test
+      - name: Deploy to Testnet
+        run: npx buidler --network rinkeby run scripts/deploy.ts 2>&1 | tee deploy.log
+        env:
+          INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+          RINKEBY_PRIVATE_KEY: ${{ secrets.RINKEBY_PRIVATE_KEY }}
+      - name: Archive Deploy log
+        uses: actions/upload-artifact@master
+        with:
+          name: deploy.log
+          path: deploy.log
+      # run coverage last because it deletes the artifacts directory
+      - name: Coverage
+        run: npm run coverage
+      - name: Archive Coverage Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: coverage
+          path: coverage

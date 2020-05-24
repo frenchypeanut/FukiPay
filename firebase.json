@@ -1,0 +1,24 @@
+{
+  "functions": {
+    "source": "packages/bot",
+    "predeploy": ["npm --prefix packages/bot run lint", "npm --prefix packages/bot run build"]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "hosting": {
+      "port": 5000
+    }
+  },
+  "hosting": {
+    "public": "packages/web/build",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}
