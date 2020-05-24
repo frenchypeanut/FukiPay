@@ -1,4 +1,4 @@
-import Telegraf, { Context, Extra } from 'telegraf';
+import Telegraf, { Context, Extra, Markup } from 'telegraf';
 import { users, WalletStatus } from '../db';
 
 export default function setupMainMenu(bot: Telegraf<Context>) {
@@ -18,15 +18,18 @@ export default function setupMainMenu(bot: Telegraf<Context>) {
       const walletStatus =
         user.wallet_status === WalletStatus.Active ? 'ready to go 🚀' : 'being created..';
 
-      return ctx.reply(
+      return ctx.replyWithMarkdown(
         `@${user.username} you wallet is ${walletStatus}`,
-        Extra.HTML().markup((m) =>
-          m.inlineKeyboard([
-            m.callbackButton('Receive', 'receive'),
-            m.callbackButton('Balance', 'balance'),
-            m.callbackButton('Transactions', 'transactions'),
-          ]),
-        ),
+        Markup.inlineKeyboard(
+          [
+            Markup.callbackButton('Receive', 'receive'),
+            Markup.callbackButton('Send', 'send'),
+            Markup.callbackButton('Lend', 'lend'),
+            Markup.callbackButton('Balance', 'balance'),
+            Markup.callbackButton('Transactions', 'transactions'),
+          ],
+          { columns: 3 },
+        ).extra(),
       );
     }
   });

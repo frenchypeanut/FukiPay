@@ -3,28 +3,35 @@ import Telegraf, { Context, session } from 'telegraf';
 import setupCatch2FA from './commands/catch2FA';
 import setupCatchAll from './commands/catchAll';
 import setupCatchNumber from './commands/catchNumber';
+import setupCatchAddress from './commands/catchAddress';
 import setupMainMenu from './commands/mainMenu';
 import setupCreateWallet from './commands/createWallet';
 import setupStart from './commands/start';
 import setupBalance from './commands/balance';
 import setupReceive from './commands/receive';
 import setupTransactions from './commands/transactions';
+import setupLend from './commands/lend';
+import setupSend from './commands/send';
 import notificationHandler from './ethereum/notificationHandler';
 import { BOT_TOKEN } from './config';
 
 const bot: Telegraf<Context> = new Telegraf(BOT_TOKEN);
 bot.use(session());
 
-setupCatch2FA(bot);
 setupCreateWallet(bot);
 setupBalance(bot);
 setupReceive(bot);
+setupLend(bot);
+setupSend(bot);
 setupTransactions(bot);
 setupStart(bot);
 setupMainMenu(bot);
 
-// catch all
+setupCatch2FA(bot);
 setupCatchNumber(bot);
+setupCatchAddress(bot);
+
+// catch all
 setupCatchAll(bot);
 
 /**
