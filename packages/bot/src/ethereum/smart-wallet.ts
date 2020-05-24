@@ -51,10 +51,14 @@ const smartWallet = ((): any => {
     async depositDaiAave(uid: string, amount: number) {
       const address = await smartWallet.getAddress(uid);
       const contract = new Contract(address, walletABI, wallet);
-      const tx = await contract.depositFundsAave(CONTRACT_ADDRESS_DAI, amount, {
-        gasLimit: 1000000,
-        gasPrice: utils.parseUnits('9.0', 'gwei'),
-      });
+      const tx = await contract.depositFundsAave(
+        CONTRACT_ADDRESS_DAI,
+        utils.parseEther(`${amount}`),
+        {
+          gasLimit: 1000000,
+          gasPrice: utils.parseUnits('9.0', 'gwei'),
+        },
+      );
       console.log(tx);
     },
   };
