@@ -36,7 +36,7 @@ export default function setupLend(bot: Telegraf<Context>) {
     delete ctx['session'].amount;
 
     smartWallet.depositDaiAave(user.uid, amount);
-    return ctx.reply('OK. Maybe it worked');
+    return ctx.reply(`🙌 You just lent ${amount} DAI.\n check your balance to see your earnings.`);
   });
 
   bot.action('lend_abort', async (ctx) => {
