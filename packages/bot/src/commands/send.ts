@@ -57,7 +57,7 @@ export default function setupSend(bot: Telegraf<Context>) {
     const tx = await smartWallet.send(user.uid, to, amount, token);
     console.log(tx);
 
-    return ctx.reply('OK. Maybe it worked');
+    return ctx.reply('🙏 Transaction successful');
   });
 
   bot.action('send_abort', async (ctx) => {
